@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index Page</title>
+</head>
+<body>
+    <h1>Math Optimal Model Config</h1>
+
+    <form action="result.html" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+        <div id="ExceclImg">
+
+        </div>
+
+        <p id="p_stock">
+            <div id="div_stock_upper">
+                <div id="div_stock_upper_left">
+                    <h3>Max Delay: <input type="text" name="maxdelay"> </h3>
+                </div>
+                <div id="div_stock_upper_right">
+                    <h3>*Min. Buffer Stock:    <input type="text" name="maxdelay"> &nbsp; <button type="button">Apply</button> </h3>
+                    <h3>*Reserve Buffer Stock: <input type="text" name="maxdelay"> &nbsp; <button type="button">Apply</button> </h3>
+                </div>
+            </div>
+            <div id="div_stock_downer" >
+                <table border="1">
+                  <thead>
+                    <tr>
+                      <th>Buffer Stock Parameters</th>
+                      <th>CW{{ No_CW }}</th>
+                      <!--<th> dynamicly add or delete a column<input ></th> -->
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Customer Weight</td>
+                      <td><input type="text" name="MB_input"/></td>
+                      <!--<td> dynamicly add or delete a column<input ></td> -->
+                    </tr>
+                    <tr>
+                      <td>Stock Weight</td>
+                      <td><input type="text" name="RB_input"/></td>
+                      <!--<td> dynamicly add or delete a column<input ></td> -->
+                    </tr>
+                  </tbody>
+                </table>
+                <!--TODO: float the button so to align with table at one row-->
+                <div><button type="button">Apply</button></div>
+            </div>
+        </p>
+
+        <p id="p_allow">
+            <h3>Allowance of Using from Stock</h3>
+            <div>
+                <table border="1">
+                  <thead>
+                    <tr>
+                      <th>Customer Name</th>
+                      <th>CW{{ No_CW }}</th>
+                      <th>&nbsp;</th> <!-- minus symbol -->
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>&nbsp;{{ Customer_name }}</td>
+                      <td><input type="checkbox" name="SW_input"/>Use</td> <!-- radio button when user click on it can changed into No-->
+                        <!--<td> dynamicly add or delete a column<input ></td> -->
+                    </tr>
+                     <!--<tr> dynamicly add or delete a row for customer</tr> -->
+                  </tbody>
+                </table>
+                <span>Note: each row is a seller/customer, and each coloumn is a time unit.</span>
+            </div>
+        </p>
+        <p id="p_robust">
+            <h3>Robust Factors <input type="checkbox">Enable </h3>
+            <table border="1">
+              <thead>
+                <tr>
+                  <th>Factors</th>
+                  <th>CW{{ No_CW }}</th>
+                  <!--<th> dynamicly add or delete a column<input ></th> -->
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Plant ATP</td>
+                  <td><input type="text" name="input_PATP"/></td>
+                  <!--<td> dynamicly add or delete a column<input ></td> -->
+                </tr>
+                <tr>
+                  <td>Vulnerable ATP</td>
+                  <td><input type="checkbox" name="ckb_VATP"/>Apply</td>
+                  <!--<td> dynamicly add or delete a column<input ></td> -->
+                </tr>
+                <tr>
+                  <td>Possible Gain/Loss</td>
+                  <td><input type="text" name="input_PGL"/></td>
+                  <!--<td> dynamicly add or delete a column<input ></td> -->
+                </tr>
+              </tbody>
+            </table>
+        </p>
+        <!-- TODO: Keep cache of user's input when back to previous page -->
+        <button type="button" ><a href="/createTask/">Scenario Config</a></button>
+        <button type="button" onclick="#">Advanced Option</button>
+        <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
+        <input  type="submit" value="Run ReCAST" />
+    </form>
+</body>
+</html>

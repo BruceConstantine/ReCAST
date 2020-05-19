@@ -1,0 +1,274 @@
+body {
+  border: #999999 1px solid;
+  max-width: 90%;
+  margin-left: 5%;
+  font-family: 'Arial Negreta', 'Arial Normal', 'Arial', sans-serif;
+  font-weight: 700;
+  font-style: normal;
+  text-align: center;
+
+}
+#login-bg-img{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: url('/static/img/bg.png') no-repeat;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  z-index: -1;
+  -ms-filter:"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='bg-img.jpg', sizingMethod='scale')";
+  filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='bg-img.jpg', sizingMethod='scale');
+}
+a{
+  color: #444444;
+  outline:none;
+  text-decoration: none;
+  blr:expression(this.onFocus=this.blur());
+}
+ul{
+  list-style-type: none;
+}
+textarea{
+  resize: none;
+}
+input{
+  margin: 10px;
+  width: 100px;
+}
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+    color: #666;
+    font-size: 13px;
+}
+input::-moz-placeholder,
+textarea::-moz-placeholder {  /* Mozilla Firefox 19+ */
+    color: #666;
+    font-size: 13px;
+}
+input:-moz-placeholder,
+textarea:-moz-placeholder {  /* Mozilla Firefox 4 to 18 */
+    color: #666;
+    font-size: 13px;
+}
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {  /* Internet Explorer 10-11 */
+    color: #666;
+    font-size: 13px;
+}
+
+footer {
+  font-size: 14px;
+  display: block;
+  background-color: #E8F1ED;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: normal;
+  line-height: normal;
+  border: 1px solid grey;
+  margin: 0 5% 0 5%;
+  padding: 10px;
+}
+span{
+  /*padding: 8px;*/
+}
+
+/*
+div p{
+  vertical-align: center;
+  line-height: 70px;
+}
+*/
+.navBar{
+  width:90%;
+  //margin: 0  5% 0 5%;
+  display:inline-block;
+  border: 1px solid red;
+}
+.logo{
+  display:inline-block;
+  float:left;
+  border:1px solid ;
+}
+.ul_nav{
+  z-index: 1;
+  border:1px solid ;
+  float: right;
+  //margin: 0; /*tightly close to top of webpage*/
+  /*Let padding is 0 so to cover wrap li item fully*/
+  padding: 0;
+}
+.ul_nav_li{
+  padding: 20px;
+ /*It is cannot to set width if display set as 'inline'*/
+  display: inline-block;
+  /*Purpose of float to left is to let the space between two li-item goes to zero -> 让两个li之间的缝隙为零*/
+  float: left;
+  width: 90px;
+  border:1px solid #016737;
+  background-color: #ABC089;
+}
+.task-li{
+  width: 110px;
+  border-radius: 100px 0 0  100px;
+  margin: 0;
+  border:1px solid black;
+}
+.ul_opt{
+  display:none;
+  /*Here position must be absolute so to let option-items out of document flow*/
+  position: absolute;
+
+}
+
+.ul_nav_li:hover .ul_opt{
+    display: block;
+}
+
+.ul_nav_li:hover, .ul_opt > li:hover {
+  border:1px solid  #016737;
+  background-color: #D2DDBF;
+}
+.ul_opt li{
+ /*It is cannot to set width if display set as 'inline' and No 'block' set*/
+  display: block ;
+  /*Purpose of float to left is to let the space between two li-item goes to zero -> 让两个li之间的缝隙为零*/
+  /* float: left; If here is float, then all option-items goes on one line*/
+  width: 100px;
+  padding: 15.5px;
+  border:1px solid #016737;
+  background-color: #ABC089;
+  position: relative;
+  left: -61px;
+  top:20px
+}
+
+/*nav bar options item*/
+
+
+/*
+        <li class="ul_nav_li half-cycle">&nbsp;</li>
+.task-li{
+  position: relative;
+  left: -15px;
+  }
+.half-cycle{
+  width: 0px;
+  border-radius: 100px 0 0  100px;
+  margin: 0;
+  border:1px solid black;
+}
+*/
+.pageHeader {
+  margin:0 5% 0 5%;
+  padding:10px;
+  line-height: 20px;
+  border: 1px solid green;
+}
+.pageContent {
+  border: 1px solid blue;
+  padding: 10px;
+  margin: 1% 5% 0 5%;
+
+}
+.btnBar {
+  display: block;
+  //background-color: #E8F1ED;
+  border: 1px solid grey;
+  margin: 1% 5% 0 5%;
+ // padding: 20px;
+}
+
+.index_module_opt{
+  margin: 0 50px 0 50px;
+  display: inline-block;
+  width: 300px;
+  height: 200px;
+  background-color: #4B7902;
+  font-size: 20px;
+  border: none;
+  border-radius: 58px;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+/*块级元素div下的行内元素a满足下面属性*/
+.index_module_opt > a {
+  display: inline-block;
+  margin-top: 90px; /* Only pixel can be applied here*/
+  color: #F2F2F2;
+}
+.index_module_opt:hover{
+  background-color:#70B603;
+}
+.index_module_opt:hover > a{
+  color: #006837;
+}
+.btnBar_index > a{
+  text-decoration: underline;
+  display: inline-block;
+  margin-top: 30px; /* Only pixel can be applied here*/
+  color: #444444;
+}
+.wrapper{
+  width: 80%;
+  margin-left: 10%;
+  text-align: left;
+}
+form > div{
+}
+#img_excel{
+  width : 100%;
+  height: 420px;
+}
+.input_input{
+}
+#input_excel{
+   //overflow: hidden;
+}
+.input_input_left{
+}
+button{
+  margin-left: 5px ;
+  margin-right: 5px ;
+}
+.input_input_right{
+  display: inline-block;
+  margin-bottom: 0;
+  float: right;
+  overflow: hidden;
+}
+.input_table_right{
+  display: inline-block;
+}
+.input_input_note{
+  font-family: "Lucida Blackletter", eufm10, blackletter;
+  font-feature-settings: normal ;
+  font-size: medium;
+  line-height: 2.5em;
+  text-align: left;
+  color: darkslategray;
+}
+.div_table{
+  margin: 20px 0 40px 0;
+  width: 100%;
+  border: 1px solid yellow;
+}
+#div_stock_upper{
+  margin: 5px 0 20px 0;
+}
+#div_stock_upper > div{
+  display: inline-block;
+  border: 1px solid red;
+  width: 50%;
+}
+#div_stock_upper_right{
+  float: right;
+  text-align: right;
+}
+table{
+  margin-left: 20px;
+}

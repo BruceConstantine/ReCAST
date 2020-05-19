@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} Index Page
+{% endblock title %}
+{% block navBar %}
+{% endblock navBar %}
+
+{% block pageHeader  %}
+   <h2>Please import data from the following for generating target allocation</h2>
+{% endblock pageHeader  %}
+
+{% block pageContent %}<br/>
+    <div class="index_module_opt"><a href="/createTask/">TAS-UI Excel file </a></div>
+    <div class="index_module_opt"><a href="/viewHistory/">History Scenario  </a></div>
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
+    <br/>
+    <div class="btnBar_index">
+        <a href="/downloadManual/">Need Help? Click Here to Download User Manual</a>
+    </div>
+    <br/><br/>
+    <br/><br/><br/>
+<!--div class="btn_footer_placeholder_index">
+</div-->
+{% endblock btnBar %}

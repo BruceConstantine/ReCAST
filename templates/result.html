@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index Page</title>
+</head>
+<body>
+    <h1> ReCAST Result </h1>
+
+    <form action="/export/" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+        <div id="ExceclImg">
+        </div>
+
+        <p>
+            <div id="body">
+                <table border="1">
+                  <thead>
+                    <tr>
+                      <th>Parameter Name</th>
+                      <th>CW{{ No_CW }}</th>
+                      <th>&nbsp;</th> <!-- minus symbol -->
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Plant ATP</td>
+                      <td></td> <!-- radio button when user click on it can changed into No-->
+                        <!--<td> dynamicly add or delete a column<input ></td> -->
+                    </tr>
+                    <tr>
+                      <td>Customer CMAD</td>
+                      <td></td> <!-- radio button when user click on it can changed into No-->
+                        <!--<td> dynamicly add or delete a column<input ></td> -->
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+            <div id="vislz" >
+                <div id="data_vis"></div>
+                <!--TODO: float the button so to align with table at one row-->
+                <div>
+                    <input type="radio" value="senario 1"/>
+                    <input type="radio" value="senario 2"/>
+                </div>
+            </div>
+        </p>
+
+        <p id="p_snr">
+            <h3>Scenarios</h3>
+            <div>
+                <table border="1">
+                  <thead>
+                    <tr>
+                      <th>Customer Name</th>
+                      <th>CW{{ No_CW }}</th>
+                      <th>&nbsp;</th> <!-- minus symbol -->
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>&nbsp;{{ Customer_name }}</td>
+                      <td></td> <!-- radio button when user click on it can changed into No-->
+                        <!--<td> dynamicly add or delete a column<input ></td> -->
+                    </tr>
+                     <!--<tr> dynamicly add or delete a row for customer</tr> -->
+                  </tbody>
+                </table>
+                <button type="button">Select Scenario</button>
+                <button type="button"><a href="/modify/">Modify Scenario</a></button>
+            </div>
+        </p>
+        <!-- TODO: Keep cache of user's input when back to previous page -->
+        <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
+        <button type="button"><a href="/config/">Back</a></button>
+        <input  type="submit" value="Run ReCAST" />
+    </form>
+</body>
+</html>

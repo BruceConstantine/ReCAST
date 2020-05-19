@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/js/lib/bootstrap-4.5.0-dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/css/style.css"/>
+
+	<script type="application/javascript" src="/static/js/main.js"></script>
+    <title>{% block title %}ReCast{% endblock title %}</title>
+</head>
+ 
+<body>
+<table id="example2"></table>
+	<script type="application/javascript" >
+	var data2 = [
+    ['sadasdasdsadasdasdsadasdasdadadassdasdasd', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford'],
+    ['2017', 10, 11, 12, 13, 15, 16],
+    ['2018', 10, 11, 12, 13, 15, 16],
+    ['2019', 10, 11, 12, 13, 15, 16],
+    ['2020', 10, 11, 12, 13, 15, 16],
+    ['2021', 10, 11, 12, 13, 15, 16]
+  ],
+  container2 = document.getElementById('example2'),
+  hot2;
+
+hot2 = new Handsontable(container2, {
+  data: JSON.parse(JSON.stringify(data2)),
+  rowHeaders: true,
+  colHeaders: true,
+  licenseKey: 'ab3e4-1bee8-ed01c-4d94b-08cfe'
+});
+	</script> 
+<div class="navBar">
+    {# part 1. ReCAST logo and nav bar #}
+    <img class="logo" src="/static/img/logo-min.png">
+    {%if request.path in navbar_paths %}
+    <ul class="ul_nav">
+        {%if request.path in options_paths %}
+            <li class="ul_nav_li task-li"><a href="#">Task:<span id="nav_taskname">Task 4</span></a></li>
+            <li class="ul_nav_li">
+                <a href="#">Options</a>
+                <ul class="ul_opt">
+                   <li><a href="#">Save Task</a></li>
+                   <li><a href="#">Discard Task</a></li>
+                   <li><a href="#">Quit Task</a></li>
+                </ul>
+            </li>
+        {% endif %}
+        <li class="ul_nav_li"><a href="#">Help</a></li>
+        <li class="ul_nav_li"><a href="#">Logout</a></li>
+    </ul>
+    {%endif%}
+
+    {% block navBar %}
+    {% endblock navBar %}
+</div>
+
+<div class="pageHeader">
+    {# part 2. Name/Titile of page #}
+    {% block pageHeader %}
+
+    {% endblock pageHeader %}
+</div>
+<div class="pageContent">
+    {# part 3.Content #}
+    {% block pageContent %}
+    {% endblock pageContent %}
+</div>
+
+<div class="btnBar">
+    {# part 4.list of button options #}
+    {% block btnBar %}
+
+    {% endblock btnBar %}
+</div>
+
+
+</body>
+
+{# part 5.webpage fotter -> No Change #}
+<footer>
+    <span>©2020 ReCAST Copyright | University of Limerick </span>
+</footer>
+</html>

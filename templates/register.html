@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ReCAST Login</title>
+</head>
+<body>
+    <h1>RLC Uer Register</h1>
+    <div>
+        <!--form 里面的 action="innerAction" 在这里是在login基础上再次调用innerActino-->
+        <!--如果前面没有添加/ 就是在当前页面直接加上 login了：
+            就是：localhost:8000/index/login -> index 是 index.html
+        -->
+        <form action="/login/" method="post" enctype="multipart/form-data">{% csrf_token %}
+            Username: <input type="text" name="username"/> <br/><br/>
+            Password: <input type="password" name="password"/> <br/><br/>
+            <input  type="submit" value="Login"/>
+        </form>
+    </div>
+</body>
+</html>

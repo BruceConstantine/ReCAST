@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index Page</title>
+</head>
+<body>
+    <h1>Advanced Parameters Configuration</h1>
+
+    <form  method="post" enctype="multipart/form-data">{% csrf_token %}
+
+
+        <!-- TODO: Keep cache of user's input when back to previous page -->
+        <button type="button" ><a href="/config/">Back Config</a></button>
+        <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
+        <input  type="submit" value="Apply Config" />
+    </form>
+</body>
+</html>
