@@ -1,0 +1,61 @@
+ {% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} Task Result
+{% endblock title %}
+
+
+{% block pageHeader  %}
+    <h1> Task Details Information </h1>
+{% endblock pageHeader  %}
+
+
+{% block pageContent %}
+<script type="application/javascript" src="/static/js/result.js"></script>
+    <div class="wrapper">
+    <form id="form" action="/export/" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <br/>
+        <h5>Basic Information </h5>
+        <p>
+            <h6>Product ID: {{ task.pid }}</h6>
+            <h6>Task Name:{{ task.taskName }}</h6>
+            <h6>Date Created: {{ task.date }}</h6>
+            <span>Time Horizon: {{ task.CW_start }} -  {{ task.CW_end }}</span>
+            <span>Max Delay:  {{ task.maxDelay }}</span>
+            <span>Packaging Unit:  {{ task.packingUnit}}</span>
+        </p><br/>
+
+        <h5>Configuring Information </h5>
+        <p>
+            <h6>Scenario Weights</h6><br/>
+
+            <h6>Buffer Stock Config Table</h6><br/>
+
+            <h6>Allowance of Using from Stock</h6><br/>
+
+            <h6>Robust Factors</h6><br/>
+
+            <h6><b>Exported Scenario: </b></h6><br/>
+            <div style="display:block">
+                <h6>Scenario 1</h6>
+                <div class="scenario-tab" >
+                    <div id="sce-tab-2" border="1">   </div>
+                </div>
+                <div >
+                    <button class="greenBtn btnAtList select-scen-btn"  type="button">Select Scenario</button>
+                    <button class="greenBtn btnAtList" type="button"><a href="/modify/">Modify Scenario</a></button>
+                </div>
+                <div style="clear: both"></div>
+            </div><br/>
+        </p>
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
+        <!-- TODO: Keep cache of user's input when back to previous page -->
+        <a href="/viewHistory/"><button class="greenBtn" type="button">History List</button></a>
+        <!--If user needs export the TA as an Excel again like before? -> No need, they can restore it firstly and then export it again.-->
+        <a href="/delete/"><button class="greenBtn" type="button">Delete Task</button></a>
+        <a href="/restore/"><button class="greenBtn" type="button">Restore This</button></a>
+    </form>
+    </div>
+{% endblock btnBar %}

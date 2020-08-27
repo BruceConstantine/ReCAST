@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} Register
+{% endblock title %}
+
+{% block pageHeader  %}
+    <script type="application/javascript"  ></script>
+    <h1>RLC Uer Register Result</h1>
+{% endblock pageHeader  %}
+
+
+{% block pageContent %}
+        <!--form 里面的 action="innerAction" 在这里是在login基础上再次调用innerActino-->
+        <!--如果前面没有添加/ 就是在当前页面直接加上 login了：
+            就是：localhost:8000/index/login -> index 是 index.html -->
+            <br/> <br/>
+            <br/>
+            <h2>{{ header }}</h2>
+            <h2>{{ content }}</h2>
+            <br/><br/>
+            <a href="/register/"><button type="button" class="greenBtn"> Back </button></a>
+            <a href="/"><button type="button" class="greenBtn"> Login </button></a>
+            <br/><br/>
+            <br/>
+            <br/><br/>
+            <br/><br/>
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
+
+
+{% endblock btnBar %}

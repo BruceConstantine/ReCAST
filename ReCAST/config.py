@@ -8,15 +8,22 @@ def navbar_paths (request):
     "navbar_paths": [
         '/createTask/',
         '/config/',
-        '/result/',
+        '/run/',
         '/modify/',
+        '/index/',
+    ]}
+
+def helpNotDisplay_paths (request):
+    return {
+    "helpNotDisplay_paths": [
+        '/index/',
     ]}
 
 def options_paths (request):
     return {
     "options_paths": [
         '/config/',
-        '/result/',
+        '/run/',
         '/modify/',
     ]}
 

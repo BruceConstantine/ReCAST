@@ -1,112 +1,110 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Index Page</title>
-</head>
-<body>
-    <h1>Math Optimal Model Config</h1>
+{% extends 'base.html' %}
 
+{% block title %}
+    {{ block.super }} Configure Task Parameters
+{% endblock title %}
+
+{% block script_header %}
+<script>
+    var CW_start = {{ CW_start|safe }}
+    var CW_end =   {{ CW_end |safe }}
+    var plantATP =  eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
+    var ATP_NTA  =  eval('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
+    var customerObjList = eval('{{  customerList }}'.replace(/&quot;/g,"'"))
+    var customerList_name = []
+    var customerList_CMAD = []
+    customerObjList.forEach(function(item){
+        customerList_name.push(item["name"])
+        customerList_CMAD.push(item["CMAD"])
+    })
+    console.log(customerList_name)
+    /* test
+    console.log(CW_end ) //190701_TAS_UI_SP000013593.xls
+    console.log(CW_start ) //190701_TAS_UI_SP000013593.xls
+    console.log(plantATP ) //190701_TAS_UI_SP000013593.xls
+    console.log(ATP_NTA ) //190701_TAS_UI_SP000013593.xls
+    console.log(customerList ) //190701_TAS_UI_SP000013593.xls
+    console.log(customerList_name)
+    console.log(customerList_CMAD)
+    */
+    /* */
+</script>
+<!-- File config.js MUST Behind of the in-inline JS at HTML
+     if you want to use the JS variable at this file -->
+<script type="application/javascript" src="/static/js/config.js" >
+  /*
+    var worker = new Worker("/static/js/config.js"); //""里面写a.js的路径
+    console.log("do post")
+    worker.postMessage(plantATP); //把信息传到a.js
+    worker.onmessage = function(e){ //这里用来du接收a.js返回的信息
+        alert(e)
+    }
+    console.log("finsied")
+*/
+</script>
+{% endblock script_header %}
+
+{% block pageHeader  %}
+    <h1>Optimal Model Parameters Configuration</h1>
+{% endblock pageHeader  %}
+
+
+{% block pageContent %}
+<table id="example2"></table>
+
+    <div class="wrapper">
     <form action="/run/" method="post" enctype="multipart/form-data">{% csrf_token %}
 
-        <div id="ExceclImg">
-            <!--{ {username }}-->
-        </div>
-
-        <p id="p_stock">
-            <div id="div_stock_upper">
+        <p>
+            <div id="div_stock_upper" class="div_table">
                 <div id="div_stock_upper_left">
-                    <h3>Max Delay: <input type="text" name="maxdelay"> </h3>
+                    <span>Max Delay: <input type="text" name="maxdelay"> </span>
                 </div>
                 <div id="div_stock_upper_right">
-                    <h3>*Min. Buffer Stock:    <input type="text" name="maxdelay"> &nbsp; <button type="button">Apply</button> </h3>
-                    <h3>*Reserve Buffer Stock: <input type="text" name="maxdelay"> &nbsp; <button type="button">Apply</button> </h3>
+                    <span>*Min. Buffer Stock:    <input id="MBS" type="text"> <button onclick="BS_apply_callback('MBS')" class="greenBtn-small" type="button">Apply</button> </span>
+                    <br/>
+                    <span>*Reserve Buffer Stock: <input id="RBS" type="text"> <button onclick="BS_apply_callback('RBS')" class="greenBtn-small" type="button">Apply</button> </span>
                 </div>
             </div>
-            <div id="div_stock_downer" >
-                <table border="1">
-                  <thead>
-                    <tr>
-                      <th>Buffer Stock Parameters</th>
-                      <th>CW{{ No_CW }}</th>
-                      <!--<th> dynamicly add or delete a column<input ></th> -->
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Customer Weight</td>
-                      <td><input type="text" name="MB_input"/></td>
-                      <!--<td> dynamicly add or delete a column<input ></td> -->
-                    </tr>
-                    <tr>
-                      <td>Stock Weight</td>
-                      <td><input type="text" name="RB_input"/></td>
-                      <!--<td> dynamicly add or delete a column<input ></td> -->
-                    </tr>
-                  </tbody>
-                </table>
-                <!--TODO: float the button so to align with table at one row-->
-                <div><button type="button">Apply</button></div>
-            </div>
-        </p>
+            <br/>
+            <br/>
+            <div class="div_table">
+                 <h5 class="table_name" > Buffer Stock Allocation</h5>
+                <!-- 这里是那个表 （Handsontable） -->
+                 <div id="BS_table" border="1" style="height:auto; overflow-x: scroll" name="BS">
+                 </div>
 
-        <p id="p_allow">
-            <h3>Allowance of Using from Stock</h3>
-            <div>
-                <table border="1">
-                  <thead>
-                    <tr>
-                      <th>Customer Name</th>
-                      <th>CW{{ No_CW }}</th>
-                      <th>&nbsp;</th> <!-- minus symbol -->
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>&nbsp;{{ Customer_name }}</td>
-                      <td><input type="checkbox" name="SW_input"/>Use</td> <!-- radio button when user click on it can changed into No-->
-                        <!--<td> dynamicly add or delete a column<input ></td> -->
-                    </tr>
-                     <!--<tr> dynamicly add or delete a row for customer</tr> -->
-                  </tbody>
-                </table>
-                <span>Note: each row is a seller/customer, and each coloumn is a time unit.</span>
+                <button class="greenBtn-small" style="display: inline-block; float: right; margin-top:14px;" type="button" onclick="cleanBSTable()">clean</button>
+                <br/>
+                <br/>
+                <!--TODO: float the button so to align with table at one row-->
+                <div  style="text-align: right; ">
+                    <input id="MBS_input" style="display: none" name="MBS"/>
+                    <input id="RBS_input" style="display: none" name="RBS"/>
+                </div>
             </div>
         </p>
-        <p id="p_robust">
+        <p>
+            <h3>Allowance of Using from Stock</h3>
+            <div id="allow_table"  style="height:auto;overflow-x:scroll" >
+            </div>
+            <span>Note: each row is a seller/customer, and each coloumn is a time unit.</span>
+        </p>
+        <br/><br/>
+        <p>
             <h3>Robust Factors <input type="checkbox">Enable </h3>
-            <table border="1">
-              <thead>
-                <tr>
-                  <th>Factors</th>
-                  <th>CW{{ No_CW }}</th>
-                  <!--<th> dynamicly add or delete a column<input ></th> -->
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Plant ATP</td>
-                  <td><input type="text" name="input_PATP"/></td>
-                  <!--<td> dynamicly add or delete a column<input ></td> -->
-                </tr>
-                <tr>
-                  <td>Vulnerable ATP</td>
-                  <td><input type="checkbox" name="ckb_VATP"/>Apply</td>
-                  <!--<td> dynamicly add or delete a column<input ></td> -->
-                </tr>
-                <tr>
-                  <td>Possible Gain/Loss</td>
-                  <td><input type="text" name="input_PGL"/></td>
-                  <!--<td> dynamicly add or delete a column<input ></td> -->
-                </tr>
-              </tbody>
+            <table id="RFtable">
             </table>
         </p>
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
         <!-- TODO: Keep cache of user's input when back to previous page -->
-        <button type="button"><a href="/createTask/">Scenario Config</a></button>
-        <button type="button"><a href="/advOpt/">Advanced Option</a></button>
+        <button class="greenBtn"  type="button"><a href="/createTask/">Scenario Config</a></button>
+        <button class="greenBtn"  type="button"><a href="/advOpt/">Advanced Option</a></button>
         <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
-        <input  type="submit" value="Run ReCAST" />
+        <input id="submit" onclick="pageSubmit(this)" class="greenBtn" type="button" value="Run  " />
     </form>
-</body>
-</html>
+    </div>
+{% endblock btnBar %}

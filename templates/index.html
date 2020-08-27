@@ -6,12 +6,13 @@
 {% endblock navBar %}
 
 {% block pageHeader  %}
-   <h2>Please import data from the following for generating target allocation</h2>
+   <h2>Please import data from the following options for getting target allocation</h2>
 {% endblock pageHeader  %}
 
-{% block pageContent %}<br/>
-    <div class="index_module_opt"><a href="/createTask/">TAS-UI Excel file </a></div>
-    <div class="index_module_opt"><a href="/viewHistory/">History Scenario  </a></div>
+{% block pageContent %}
+    <br/><br/> <br/><!--TAS-UI Excel file -->
+    <div class="index_module_opt"><a href="/createTask/"> Run ReCAST </a></div>
+    <div class="index_module_opt"><a href="/viewHistory/">View History Scenario</a></div>
 {% endblock pageContent %}
 
 {# part 4.list of button options #}
@@ -21,7 +22,28 @@
         <a href="/downloadManual/">Need Help? Click Here to Download User Manual</a>
     </div>
     <br/><br/>
-    <br/><br/><br/>
+    <br/>
+    <!--
+    <table class="easyui-datagrid">
+        <thead>
+    		<tr>
+    			<th data-options="field:'code'">Code</th>
+    			<th data-options="field:'name'">Name</th>
+    			<th data-options="field:'price'">Price</th>
+    		</tr>
+        </thead>
+        <tbody>
+    		<tr>
+    			<td>001</td><td>name1</td><td>2323</td>
+    		</tr>
+    		<tr>
+    			<td>002</td><td>name2</td><td>4612</td>
+    		</tr>
+    	</tbody>
+    </table>
+    <br/>
+    <br/>
+    -->
 <!--div class="btn_footer_placeholder_index">
 </div-->
 {% endblock btnBar %}

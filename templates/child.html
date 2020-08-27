@@ -1,112 +1,44 @@
 {% extends 'base.html' %}
 {% block title %}
-    {{ block.super }} Configure Task Parameters
+    {{ block.super }} ReCAST Task Result
 {% endblock title %}
 
 
 {% block pageHeader  %}
-    <h1>Optimal Model Parameters Configuration</h1>
+    <h1> ReCAST Result </h1>
 {% endblock pageHeader  %}
 
 <script type="application/javascript" src="/static/js/config.js"></script>
 
 {% block pageContent %}
     <div class="wrapper">
-    <form action="/run/" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <form action="/export/" method="post" enctype="multipart/form-data">{% csrf_token %}
 
         <p>
-            <div id="div_stock_upper" class="div_table">
-                <div id="div_stock_upper_left">
-                    <span>Max Delay: <input type="text" name="maxdelay"> </span>
-                </div>
-                <div id="div_stock_upper_right">
-                    <span>*Min. Buffer Stock:    <input type="text" name="maxdelay"> &nbsp; <button type="button">Apply</button> </span>
-                    <br/>
-                    <span>*Reserve Buffer Stock: <input type="text" name="maxdelay"> &nbsp; <button type="button">Apply</button> </span>
-                </div>
-            </div>
-            <br/>
-            <br/>
-            <div class="div_table">
-            <table  border="1">
-                    <h5 class="table_name" > Buffer Stock Allocation</h5>
-                    <thead>
-                     <tr>
-                      <th>Buffer Stock Parameters</th>
-                      <th>CW{{ No_CW }}</th>
-                      <!--<th> dynamicly add or delete a column<input ></th> -->
-                     </tr>
-                    </thead>
-                    <tbody>
-                     <tr>
-                      <td>Customer Weight</td>
-                      <td><input type="text" name="MB_input"/></td>
-                      <!--<td> dynamicly add or delete a column<input ></td> -->
-                     </tr>
-                     <tr>
-                      <td>Stock Weight</td>
-                      <td><input type="text" name="RB_input"/></td>
-                      <!--<td> dynamicly add or delete a column<input ></td> -->
-                     </tr>
-                  </tbody>
+            <div id="body">
+                <table border="1">
+
                 </table>
+            </div>
+        </p>
+        <p>
+            <div id="vislz" >
+                <div id="data_vis"></div>
                 <!--TODO: float the button so to align with table at one row-->
-                <div style="text-align: right">
-                    <button  type="button">Apply</button>
+                <div>
+                    <input type="radio" value="senario 1"/>
+                    <input type="radio" value="senario 2"/>
                 </div>
             </div>
         </p>
         <p>
-            <h3>Allowance of Using from Stock</h3>
+            <h3>Scenarios</h3>
             <div>
                 <table border="1">
-                  <thead>
-                    <tr>
-                      <th>Customer Name</th>
-                      <th>CW{{ No_CW }}</th>
-                      <th>&nbsp;</th> <!-- minus symbol -->
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>&nbsp;{{ Customer_name }}</td>
-                      <td><input type="checkbox" name="SW_input"/>Use</td> <!-- radio button when user click on it can changed into No-->
-                        <!--<td> dynamicly add or delete a column<input ></td> -->
-                    </tr>
-                     <!--<tr> dynamicly add or delete a row for customer</tr> -->
-                  </tbody>
                 </table>
-                <span>Note: each row is a seller/customer, and each coloumn is a time unit.</span>
+                <button type="button">Select Scenario</button>
+                <button type="button"><a href="/modify/">Modify Scenario</a></button>
             </div>
-        </p>
-        <p>
-            <h3>Robust Factors <input type="checkbox">Enable </h3>
-            <table border="1">
-              <thead>
-                <tr>
-                  <th>Factors</th>
-                  <th>CW{{ No_CW }}</th>
-                  <!--<th> dynamicly add or delete a column<input ></th> -->
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Plant ATP</td>
-                  <td><input type="text" name="input_PATP"/></td>
-                  <!--<td> dynamicly add or delete a column<input ></td> -->
-                </tr>
-                <tr>
-                  <td>Vulnerable ATP</td>
-                  <td><input type="checkbox" name="ckb_VATP"/>Apply</td>
-                  <!--<td> dynamicly add or delete a column<input ></td> -->
-                </tr>
-                <tr>
-                  <td>Possible Gain/Loss</td>
-                  <td><input type="text" name="input_PGL"/></td>
-                  <!--<td> dynamicly add or delete a column<input ></td> -->
-                </tr>
-              </tbody>
-            </table>
         </p>
 {% endblock pageContent %}
 

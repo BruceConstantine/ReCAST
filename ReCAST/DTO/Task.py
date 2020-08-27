@@ -5,9 +5,9 @@ from ReCAST import DAO
 
 class Task():
     def __init__(self,taskName=None,taskDescription=None, currentPage=None,
-                    username=None, pid='', CW_start=None, CW_end=None,
-                    enableRub=False, plantATP=None, ATP_NTA=None,
-                    maxDelay=None, packingUnit=None, scenarioList=None, TA_rid=None, cid=None):
+                    username=None, pid='', CW_start=None, CW_end=None, packingUnit=None,
+                    MBS = [], RBS = [], plantATP=None, ATP_NTA=None, scenarioList=None,
+                    maxDelay=None,  enableRub=False,  TA_rid=None, cid=None, date=''):
         #Get Max ID + 1
         self.tid = DAO.getMaxID("Task") + 1
         # Task descriptions
@@ -23,6 +23,8 @@ class Task():
         self.CW_start = CW_start
         self.CW_end = CW_end
         self.enableRub = enableRub
+        self.RBS = RBS
+        self.MBS = MBS
         # This is a big string for stroing all vlaues of plant ATP
         self.plantATP = self.__getList(plantATP)
         self.ATP_NTA = self.__getList(ATP_NTA)
@@ -34,11 +36,45 @@ class Task():
         self.scenarioList = scenarioList
         # Reference to Config table 使用ForeignKey扩展Task表
         self.cid =cid  # ForeignKey(Config,on_delete=models.CASCADE, null=True)
+        self.date=date
 
     def getCWlength(self):
         l = self.CW_end - self.CW_start
         return l if l > 0 else self.CW_start - self.CW_end
 
+    @staticmethod
+    def copy(taskmodel):
+        self = Task();
+        #Get Max ID + 1
+        self.tid = taskmodel.tid
+        # Task descriptions
+        self.taskName = taskmodel.taskName
+        self.taskDescription = taskmodel.taskDescription
+        # No ".html" added into DB, we need to take it from DB and add the extension in code.
+        self.date = taskmodel.date
+        self.currentPage = taskmodel.currentPage
+        # RLC's Username
+        self.username = taskmodel.username
+
+        #Excel Data
+        self.pid = taskmodel.pid
+        self.CW_start = taskmodel.CW_start
+        self.CW_end = taskmodel.CW_end
+        self.enableRub = taskmodel.enableRub
+        self.RBS = taskmodel.RBS
+        self.MBS = taskmodel.MBS
+        # This is a big string for stroing all vlaues of plant ATP
+        self.plantATP = taskmodel.plantATP
+        self.ATP_NTA = taskmodel.ATP_NTA
+        self.maxDelay = taskmodel.maxDelay
+        self.packingUnit = taskmodel.packingUnit
+
+        # The rid of result scenario. aka. Target allocation which selected by RLC's final decision
+        self.TA_rid = taskmodel.TA_rid
+        self.scenarioList = taskmodel.scenarioList
+        # Reference to Config table 使用ForeignKey扩展Task表
+        self.cid =taskmodel.cid  # ForeignKey(Config,on_delete=models.CASCADE, null=True)
+        return self;
 
     #input must be dictionary type
     def assignDict(self,dict):
@@ -51,6 +87,8 @@ class Task():
         self.pid = dict.pid
         self.CW_start = dict.CW_start
         self.CW_end = dict.CW_end
+        self.MBS  = dict.MBS
+        self.RBS  = dict.RBS
         self.enableRub = dict.enableRub
         self.plantATP = dict.plantATP
         self.ATP_NTA = dict.ATP_NTA
@@ -77,6 +115,8 @@ class Task():
             'cid': self.cid,
             'plantATP': self.plantATP,
             'ATP_NTA': self.ATP_NTA,
+            'RBS': self.RBS,
+            'MBS': self.MBS,
         }
 
     def getJSON(self):
@@ -85,8 +125,8 @@ class Task():
     def __getList(self,stringfiedList):
         if stringfiedList == None:
             return []
-        list = stringfiedList.split(',')
-        return list
+        else:
+            return stringfiedList #.split(',')
 
 # class Task():
 #     def __init__(self,taskName='',taskDescription='', currentPage='',

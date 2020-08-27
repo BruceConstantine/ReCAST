@@ -1,79 +1,217 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Index Page</title>
-</head>
-<body>
-    <h1> ReCAST Result </h1>
+ {% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} Task Result
+{% endblock title %}
 
-    <form action="/export/" method="post" enctype="multipart/form-data">{% csrf_token %}
 
-        <div id="ExceclImg">
-        </div>
+{% block pageHeader  %}
+    <h1> Result Dashboard </h1>
+{% endblock pageHeader  %}
 
+
+{% block pageContent %}
+<br/>
+<script>
+    /* It has no better choice: as the Django template parameters must be passed to the JS module file.
+       '{ { datalist}}' must be located at template file.
+
+      var aaa = JSON.parse('{{ datalist|safe }}');
+      alert(aaa);
+* */
+    var CW_start = {{ CW_start|safe }}
+    var CW_end =   {{ CW_end |safe }}
+    var plantATP =  eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
+    var ATP_NTA  =  ('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
+    var customerObjList = eval('{{  customerList }}'.replace(/&quot;/g,"'"))
+    var customerList_name = []
+    var customerList_CMAD = []
+    customerObjList.forEach(function(item){
+        customerList_name.push(item["name"])
+        customerList_CMAD.push(item["CMAD"])
+    })
+    //var scenarioList = { { Scenariolist|safe }}
+
+    /* test
+    console.log(CW_end ) //190701_TAS_UI_SP000013593.xls
+    console.log(CW_start ) //190701_TAS_UI_SP000013593.xls
+    console.log(plantATP ) //190701_TAS_UI_SP000013593.xls
+    console.log(ATP_NTA ) //190701_TAS_UI_SP000013593.xls
+    console.log(customerList ) //190701_TAS_UI_SP000013593.xls
+    console.log(customerList_name)
+    console.log(customerList_CMAD)
+    */
+    /* */
+</script>
+<!-- File config.js MUST Behind of the in-inline JS at HTML
+     if you want to use the JS variable at this file -->
+<script type="application/javascript" src="/static/js/result.js" ></script>
+<span></span>
+    <div class="wrapper">
+    <form id="form" action="/export/" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <br/>
         <p>
-            <div id="body">
-                <table border="1">
-                  <thead>
-                    <tr>
-                      <th>Parameter Name</th>
-                      <th>CW{{ No_CW }}</th>
-                      <th>&nbsp;</th> <!-- minus symbol -->
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Plant ATP</td>
-                      <td></td> <!-- radio button when user click on it can changed into No-->
-                        <!--<td> dynamicly add or delete a column<input ></td> -->
-                    </tr>
-                    <tr>
-                      <td>Customer CMAD</td>
-                      <td></td> <!-- radio button when user click on it can changed into No-->
-                        <!--<td> dynamicly add or delete a column<input ></td> -->
-                    </tr>
-                  </tbody>
-                </table>
+            <h5>Input Data</h5>
+            <div id="inputData" style="width: 970px; height: auto; max-height:auto; overflow-scrolling: auto; overflow-x: scroll">
             </div>
+        </p> <br/><br/>
+        <p>
             <div id="vislz" >
-                <div id="data_vis"></div>
-                <!--TODO: float the button so to align with table at one row-->
-                <div>
-                    <input type="radio" value="senario 1"/>
-                    <input type="radio" value="senario 2"/>
+                <h5>Visualized Scenarios Target Allocation Data</h5>
+                <div id="data_vis" style="border: 1px red solid; width: 100%; height: 400px"></div>
+                <span>(Please select one scenario case for render:)</span>
+                <!--< !--TODO: float the button so to align with table at one row-->
+                     <!--
+                  <input id="myCar" list="cars" placeholder="select"/>
+                    <datalist id="cars">
+                      <option value="BMW">
+                      <option value="Ford">
+                      <option value="Volvo">
+                    </datalist> -->
+                <div style="margin-left: 20px;">
+                <div id="content">
+                </div>
+                <img id="selectImg"alt="">
+                <div id="selectItem">
+                <!--  <ul>
+                    <li data-value="1">北京</li>
+                    <li data-value="2">上海</li>
+                    <li data-value="3">深圳</li>
+                  </ul>-->
+                </div>
+                </div>
+<script>
+
+  var data = [
+      //TODO: data content for #scenario# Number.
+      {name:'scenario 1',value:'1'},
+      {name:'scenario 2',value:'2'},
+      {name:'scenario 3',value:'3'}
+  ]
+
+
+  var content = document.getElementById('content');
+  var selectImg = document.getElementById('selectImg');
+  var selectItem = document.getElementById('selectItem');
+
+  var ul = document.createElement('ul');
+  selectItem.appendChild(ul);
+  for(var i = 0; i < data.length; i++){
+    var li = document.createElement('li');
+    li.setAttribute('data-value',data[i].value);
+    li.innerText = data[i].name;
+    ul.appendChild(li);
+  }
+  /**
+   * 点击下拉箭头
+   */
+  selectImg.onclick = function () {
+    console.log(selectItem.style.display);
+    if(selectItem.style.display == 'none' || selectItem.style.display == ''){
+      selectItem.style.display = 'block';
+    }else{
+      selectItem.style.display = 'none';
+    }
+
+  }
+
+  content.onclick = function () {
+    if(selectItem.style.display == 'none' || selectItem.style.display == ''){
+      selectItem.style.display = 'block';
+    }else{
+      selectItem.style.display = 'none';
+    }
+  }
+
+  var lis = selectItem.getElementsByTagName('li');
+  for(var i = 0; i < lis.length; i++){
+    lis[i].onclick = function () {
+      console.log( this.getAttribute('data-value'));
+      content.innerText = this.innerHTML;
+      selectItem.style.display = 'none';
+
+      // update data visualization panel
+    }
+  }
+</script>
+<style>
+  #content{
+    width: 280px;
+    height: 42px;
+    line-height: 42px;
+    padding-left: 10px;
+    background: rgb(255, 255, 255);
+    border-radius: 2px;
+    border: 1px solid rgb(1, 1, 1);
+    font-size: 16px;
+    font-family: MicrosoftYaHei;
+    color: rgb(61, 61, 61);
+    cursor: pointer;
+  }
+  #selectImg{
+    position: absolute;
+    top:13px;
+    right: 10px;
+    cursor: pointer;
+  }
+  #selectItem{
+    display: none;
+    border: 1px solid  rgb(61, 61, 61);
+    width: 280px;
+  }
+  #selectItem ul{
+    list-style: none;
+  }
+  #selectItem ul li{
+    height: 30px;
+    line-height: 30px;
+    padding-left: 5px;
+    cursor: pointer;
+  }
+  #selectItem ul li:hover{
+    background-color:#f5f7fa;
+  }
+</style>
+
+        <!--     <div>
+                    <input class="radiolist" name="scenario" type="radio" value="senario 1" checked>senario 1</input>
+                    <input class="radiolist" name="scenario" type="radio" value="senario 2">senario 2</input>
                 </div>
             </div>
+        -->
+        </p><br/>
+        <p>
+            <h5>Generated Scenarios</h5><br/>
+            <div style="display:block">
+                <h6>Scenario 1</h6>
+                <div class="scenario-tab" >
+                    <div id="sce-tab-1" border="1">   </div>
+                </div>
+                <div >
+                    <button class="greenBtn btnAtList select-scen-btn" type="button">Select Scenario</button>
+                    <button class="greenBtn btnAtList" type="button"><a href="/modify/">Modify Scenario</a></button>
+                </div>
+                <div style="clear: both"></div>
+            </div><br/>
+            <div style="display:block">
+                <h6>Scenario 2</h6>
+                <div class="scenario-tab" >
+                    <div id="sce-tab-2" border="1">   </div>
+                </div>
+                <div >
+                    <button class="greenBtn btnAtList select-scen-btn"  type="button">Select Scenario</button>
+                    <button class="greenBtn btnAtList" type="button"><a href="/modify/">Modify Scenario</a></button>
+                </div>
+                <div style="clear: both"></div>
+            </div><br/>
         </p>
+{% endblock pageContent %}
 
-        <p id="p_snr">
-            <h3>Scenarios</h3>
-            <div>
-                <table border="1">
-                  <thead>
-                    <tr>
-                      <th>Customer Name</th>
-                      <th>CW{{ No_CW }}</th>
-                      <th>&nbsp;</th> <!-- minus symbol -->
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>&nbsp;{{ Customer_name }}</td>
-                      <td></td> <!-- radio button when user click on it can changed into No-->
-                        <!--<td> dynamicly add or delete a column<input ></td> -->
-                    </tr>
-                     <!--<tr> dynamicly add or delete a row for customer</tr> -->
-                  </tbody>
-                </table>
-                <button type="button">Select Scenario</button>
-                <button type="button"><a href="/modify/">Modify Scenario</a></button>
-            </div>
-        </p>
+{# part 4.list of button options #}
+{% block btnBar %}
         <!-- TODO: Keep cache of user's input when back to previous page -->
+        <button class="greenBtn" type="button"><a href="/config/">Optional Model Config</a></button>
         <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
-        <button type="button"><a href="/config/">Back</a></button>
-        <input  type="submit" value="Run ReCAST" />
+        <input class="greenBtn" type="submit" value="Export" />
     </form>
-</body>
-</html>
+    </div>
+{% endblock btnBar %}

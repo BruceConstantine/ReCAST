@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} Search Tasks By Product
+{% endblock title %}
+{% block navBar %}
+{% endblock navBar %}
+
+{% block pageHeader  %}
+    <h1>Search Tasks By Product</h1>
+{% endblock pageHeader  %}
+
+{% block pageContent %}<br/>
+    <form action="/search/" method="post" enctype="multipart/form-data">{% csrf_token %}
+        <div class="history-search">
+            <h5 style="display: inline">Input Product ID:</h5>
+            <input name="pid" class="regist-input  product-input" type="text" placeholder="Please input SP or MA code here"/>&nbsp; &nbsp;
+            <a><button class="greenBtn" type="submit" >Search</button></a>
+        </div>
+    </form>
+    <hr/>
+
+ <form action="/details/" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <div>
+        <h5 style="float: left; margin-left: 40px"><b>History Scenario Product ID {{ pid }} </b></h5>
+{#        <h5 style="float: left">Product ID: SP000010123</h5>#}
+        <span class="input_input_note" style="float: right">Note: Tasks are sorted by datetime order </span>
+        <br style="clear: both"/>
+        <br style="clear: both"/>
+        <ul>
+          {% for task in tasklist %}
+            <li>
+                <div style="display: block">
+                    <h5 style="float: left">{{ task.taskName }}</h5>
+                    <div style="display: inline-block">
+                        <span class="task-state">{{ task.TA_rid }}</span> <br/>
+                        <span class="task-date">Created on {{ task.date }}</span><br/> <!-- 11/01/2020-11:12:44 -->
+                        <span class="task-desc">{{ task.taskDescription }}</span><br/>
+                    </div>
+                    <div style="display: inline-block; float: right">
+                        <a href="/details/"><button name="cid" value="{{ task.cid }}" type="submit" class="greenBtn">View Details</button></a>
+                    </div>
+                </div>
+                <br style="clear: both"/>
+            </li>
+          {% endfor %}
+        </ul>
+    </div>
+   </form>
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
+    <br/>
+    <div class="btnBar_index">
+        <a href="/viewHistory/"><button type="button" class="greenBtn">Back to List</button></a>
+    </div>
+    <br/>
+<!--div class="btn_footer_placeholder_index">
+</div-->
+{% endblock btnBar %}

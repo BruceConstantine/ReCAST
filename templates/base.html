@@ -1,57 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    {% load static  %}
     <meta charset="UTF-8">
+    <meta   http-equiv= "Pragma"   content= "no-cache" />
+    <meta   http-equiv= "Cache-Control"   content= "no-cache" />
+    <meta   http-equiv= "Expires"   content= "0" />
+    <script src="/static/js/handsontable.full.min.js"></script>
+    <link href="/static/js/handsontable.full.min.css" rel="stylesheet">
 
-    <script src="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.js"></script>
-<link href="https://cdn.jsdelivr.net/npm/handsontable/dist/handsontable.full.min.css" rel="stylesheet">
+    <!--script src="/static/js/handsontable-master/dist/handsontable.full.js"></script>
+    <script src="/static/js/handsontable-master/dist/handsontable.full.js"></script>
+    <link href="/static/js/handsontable-master/dist/handsontable.full.css" rel="stylesheet"-->
+	<script type="application/javascript" src={% static "js/jquery-3.5.1.min.js"%}></script>
 
-    <link rel="stylesheet" href="/static/js/lib/bootstrap-4.5.0-dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="/static/css/style.css"/>
-
+    <link rel="stylesheet" href={% static "js/lib/bootstrap-4.5.0-dist/css/bootstrap.min.css"%}/>
+    <!--link rel="stylesheet" href="/static/css/style.css"/-->
+    <link rel="stylesheet" href={% static "css/style.css"%}/>
+    <!--script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts-all-3.js"></script-->
+    <script type="text/javascript" src="/static/js/echarts.min.js"></script>
+    <!--script type="text/javascript" src="/static/js/echarts-all-3.js"></script-->
 	<script type="application/javascript" src="/static/js/main.js"></script>
+    {% block script_header %} {% endblock script_header %}
     <title>{% block title %}ReCast{% endblock title %}</title>
 </head>
  
 <body>
-<table id="example2"></table>
-	<script type="application/javascript" >
-	var data2 = [
-    ['sadasdasdsadasdasdsadasdasdadadassdasdasd', 'Tesla', 'Nissan', 'Toyota', 'Honda', 'Mazda', 'Ford'],
-    ['2017', 10, 11, 12, 13, 15, 16],
-    ['2018', 10, 11, 12, 13, 15, 16],
-    ['2019', 10, 11, 12, 13, 15, 16],
-    ['2020', 10, 11, 12, 13, 15, 16],
-    ['2021', 10, 11, 12, 13, 15, 16]
-  ],
-  container2 = document.getElementById('example2'),
-  hot2;
+<div class="big-wrapper">
 
-hot2 = new Handsontable(container2, {
-  data: JSON.parse(JSON.stringify(data2)),
-  rowHeaders: true,
-  colHeaders: true,
-  licenseKey: 'ab3e4-1bee8-ed01c-4d94b-08cfe'
-});
-	</script> 
 <div class="navBar">
     {# part 1. ReCAST logo and nav bar #}
     <img class="logo" src="/static/img/logo-min.png">
     {%if request.path in navbar_paths %}
     <ul class="ul_nav">
         {%if request.path in options_paths %}
-            <li class="ul_nav_li task-li"><a href="#">Task:<span id="nav_taskname">Task 4</span></a></li>
+            <li class="ul_nav_li task-li"><a href="#">Task:<br/><span id="nav_taskname">Task 4</span></a></li>
             <li class="ul_nav_li">
                 <a href="#">Options</a>
                 <ul class="ul_opt">
-                   <li><a href="#">Save Task</a></li>
-                   <li><a href="#">Discard Task</a></li>
-                   <li><a href="#">Quit Task</a></li>
+                   <li><a onclick="saveTask()" href="#">Save Task</a></li>
+                   <li><a onclick="discardTask()"  href="#">Discard Task</a></li>
+                   <li><a onclick="quitTask()"  href="#">Quit Task</a></li>
                 </ul>
             </li>
         {% endif %}
-        <li class="ul_nav_li"><a href="#">Help</a></li>
-        <li class="ul_nav_li"><a href="#">Logout</a></li>
+        {%if request.path not in helpNotDisplay_paths %}
+            <li class="ul_nav_li"><a onclick="help()" href="#">Help</a></li>
+        {% endif %}
+            <li class="ul_nav_li"><a onclick="logout()" href="#">Logout</a></li>
+
     </ul>
     {%endif%}
 
@@ -79,10 +76,11 @@ hot2 = new Handsontable(container2, {
 </div>
 
 
+</div>
 </body>
 
 {# part 5.webpage fotter -> No Change #}
 <footer>
-    <span>©2020 ReCAST Copyright | University of Limerick </span>
+    <span>© ReCAST 2020 | Copyright University of Limerick </span>
 </footer>
 </html>

@@ -1,14 +1,82 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>ReCAST Login</title>
-</head>
-<body>
-<h1>Hello This is login page</h1>
+ {% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} Modify Result | Dual Visualization
+{% endblock title %}
 
-    <div>
-        Current time：{{now_time}}
+{% block pageHeader  %}
+    <h1> Modify Task Result </h1>
+{% endblock pageHeader  %}
+
+
+{% block pageContent %}
+<script>
+    var CW_start = {{ CW_start|safe }}
+    var CW_end   = {{ CW_end  |safe }}
+    var plantATP = eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
+    var ATP_NTA  = eval('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
+    var customerObjList = eval('{{  customerList }}'.replace(/&quot;/g,"'"))
+    var customerList_name = []
+    var customerList_CMAD = []
+
+    var customerList_All = []
+    customerObjList.forEach(function(item){
+        var aatp_aCustomer = item["AATP"]
+        var astock_aCustomer = item["AStock"]
+        var cmad_aCustomer = item["CMAD"]
+        var le = item["AATP"].length * 3
+        customerList_All_a_customer = Array(le)
+        for(var i = 0; i < le ; i++){
+            if (i%3==0) { //aatp
+                customerList_All_a_customer[i] = aatp_aCustomer[parseInt(i/3)]
+            } else if ((i-1)%3==0) { //astock
+                customerList_All_a_customer[i] = astock_aCustomer[parseInt(i/3)]
+            } else if ((i+1)%3==0) { //sum
+                customerList_All_a_customer[i] = cmad_aCustomer[parseInt(i/3)]
+            }
+        }
+        customerList_name.push(item["name"])
+        customerList_CMAD.push(cmad_aCustomer)
+        customerList_All.push(customerList_All_a_customer)
+    })
+    console.log(customerList_All)
+
+</script>
+<script type="application/javascript" src="/static/js/modify.js"></script>
+    <div class="wrapper">
+    <form id="form" action="/export/" method="post" enctype="multipart/form-data">{% csrf_token %}
+    <p>
+        <div id="vislz" >
+        <div id="data_vis" style="border: 1px red solid; width: 100%; height: 400px"></div>
+
+    </p>
+    <br/>
+
+    <p>
+        <h3>Scenarios</h3>
+        <div style="display:block">
+            <div class="scenario-modify-tab" >
+                <div id="sce-tab-1" style="overflow-x: scroll; height: auto" border="1">   </div>
+            </div>
+            <div style="clear: both"></div>
+        </div><br/>
+        <!--div style="display:block">
+            <div class="scenario-tab" >
+                <div id="sce-tab-1" border="1">   </div>
+            </div>
+            <div style="clear: both"></div>
+        </div><br/-->
+    </p>
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
+    <div align="center">
+        <!-- TODO: Keep cache of user's input when back to previous page -->
+        <button class="greenBtn" type="button"><a href="/run/">Back to Result</a></button>
+        <!--button class="greenBtn" type="button" onclick="update(this)">Confirm Modify</button-->
+        <button class="greenBtn" type="button" ><a href="/update/">Confirm Modify</a></button>
+        <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
+        <input class="greenBtn" type="submit" value="Export" />
     </div>
-</body>
-</html>
+    </form>
+{% endblock btnBar %}

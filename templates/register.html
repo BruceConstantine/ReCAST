@@ -1,21 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>ReCAST Login</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} Register
+{% endblock title %}
+
+{% block pageHeader  %}
+    <script type="application/javascript" src="/static/js/register.js"></script>
     <h1>RLC Uer Register</h1>
+{% endblock pageHeader  %}
+
+
+{% block pageContent %}
     <div>
         <!--form 里面的 action="innerAction" 在这里是在login基础上再次调用innerActino-->
         <!--如果前面没有添加/ 就是在当前页面直接加上 login了：
-            就是：localhost:8000/index/login -> index 是 index.html
-        -->
-        <form action="/login/" method="post" enctype="multipart/form-data">{% csrf_token %}
-            Username: <input type="text" name="username"/> <br/><br/>
-            Password: <input type="password" name="password"/> <br/><br/>
-            <input  type="submit" value="Login"/>
+            就是：localhost:8000/index/login -> index 是 index.html -->
+        <form action="/regist/" method="post" enctype="multipart/form-data">{% csrf_token %}
+             <br/> <br/>
+            <div class="regist-inputline" >
+                    <span class="regist-prompt">Username:</span>
+                    <input class="regist-input" type="text" name="username"/>
+                    <button style="display:inline;margin-left: 300px;" class=" greenBtn btnAtList" type="button" onclick="checkUsername(this)" >Check</button>
+                 <br/>
+             </div>
+            <br/>
+            <div class="regist-inputline" >
+                    <span class="regist-prompt">Password:</span>
+                     <input class="regist-input" type="password" name="password"/>
+                 <br/>
+             </div>
+            <br/>
+            <div class="regist-inputline" >
+                    <span class="regist-prompt">Employee Number:</span>
+                    <input class="regist-input" type="text" name="empnum"/>
+                 <br/>
+             </div>
+            <br/>
+            <div class="regist-inputline" >
+                    <span class="regist-prompt">Email Address:</span>
+                    <input class="regist-input" type="text" name="email"/>
+                    <button style="display:inline;margin-left: 300px;" class=" greenBtn btnAtList" type="button" onclick="sendOTC(this)" >send OTC</button>
+                   <br/> 
+             </div>
+            
+            <br/>
+            <div class="regist-inputline" >
+                    <span class="regist-prompt">Activation Code: </span>
+                    <input class="regist-input" type="text" name="otc"/>
+                 <br/>
+             </div>
+            <br/>
+            <!--div class="regist-inputline" >
+                    <span class="regist-prompt">CAPTCHA Code: </span>
+                    <input class="regist-input" type="text" name="captcha"/>
+                 <br/>
+             </div-->
+            <br/><br/>
+            <br/><br/>
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
+            <a href="/"><button type="button" class="greenBtn"> Back </button></a>
+            <input onclick="pageSubmit(this)" type="button" class="greenBtn" value="Register"/>
         </form>
     </div>
-</body>
-</html>
+{% endblock btnBar %}

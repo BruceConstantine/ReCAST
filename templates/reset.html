@@ -11,10 +11,10 @@
         <!--如果前面没有添加/ 就是在当前页面直接加上 login了：
             就是：localhost:8000/index/login -> index 是 index.html
         -->
-        <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        <form method="post"  action="/doreset/"  enctype="multipart/form-data">{% csrf_token %}
             Username: <input type="text" name="username"/> <br/><br/>
             Password: <input type="password" name="password"/> <br/><br/>
-            <input  type="submit" value="Login"/>
+            <input  type="submit" value="Reset"/>
         </form>
     </div>
 </body>

@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+{% block title %}
+    {{ block.super }} History Tasks
+{% endblock title %}
+{% block navBar %}
+{% endblock navBar %}
+
+{% block pageHeader  %}
+    <h1>ReCAST Task History</h1>
+{% endblock pageHeader  %}
+
+{% block pageContent %}<br/>
+    <form action="/search/" method="post" enctype="multipart/form-data">{% csrf_token %}
+       <div class="history-search">
+            <h5 style="display: inline">Input Product ID:</h5> &nbsp;
+            <input name="pid" class="regist-input  product-input" type="text" placeholder="Please input SP or MA code here"/>&nbsp; &nbsp;
+            <a><button class="greenBtn" type="submit" >Search</button></a>
+        </div>
+    </form>
+    <hr/>
+    <span class="input_input_note">* Note: Tasks are sorted by datetime order </span>
+
+        <br />
+        <br />
+        <br />
+        <h3>Tasks List</h3>
+        <br />
+    <div style="display: block; float: left">
+        <div class="history-nav-list">
+        <br/><br/><br/>
+            <ul>
+                <li>
+                    <button id="allBtn" class="select-btn greenBtn btnAtList">All Task</button>
+                </li>
+                <li>
+                    <button id="ongoingBtn" class="select-btn greenBtn btnAtList">Ongoing Task</button>
+                </li>
+                <li>
+                    <button id="finishedBtn" class="select-btn greenBtn btnAtList">Finished Task</button>
+                </li>
+            </ul>
+        </div>
+        <div class="history-content" style="display: block;  width: 79%;">
+
+          <form action="/details/" method="post" enctype="multipart/form-data">{% csrf_token %}
+
+            <ul >
+            <!--
+                <li style="display: block">
+                     <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                    <br clear="both"/>
+                    <br clear="both"/>
+                </li>
+            -->
+            {% for task in tasklist %}
+                <!-- Ongoing Task -->
+                <!--li class="ongoing" style="display: block"-->
+                <li class="ongoing" style=" display:inline;*zoom:1;overflow:hidden;display:inline-block;">
+                    <div style="float: left;margin: 15px;">
+                    <input style="margin: 0;width: 32px" type="checkbox"/><span>{{task.taskName}}</span>
+                    </div>
+                   <div style="float: left;text-align: left;margin: 40px 40px 40px 16px; width:40%;text-overflow: ellipsis;white-space:nowrap;">
+                       <!-- set CSS up at here: 12312dq21d12d12d12d12 222222222222222222222222222222  -->
+                        <span style="text-overflow: ellipsis;white-space:nowrap;">product ID: <b>{{task.pid}}</b></span> <br/>
+                        <span>Created on date: {{task.date}}</span><br/>
+                        <span>Task Description: {{task.taskDescription}}</span><br/>
+                    </div>
+                   <div style="float: right;margin: 40px">
+                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>
+                       <br/>
+                       <br/>
+                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                    </div>
+                    <br clear="both"/>
+                    <br clear="both"/>
+                </li>
+            {% endfor %}
+            <!--hr/>
+            <hr/>
+            <hr/>
+                <! -- Finished Task -- >
+                <li class="finished"  style="display: block">
+                    <div style="float: left;margin: 40px;">
+                    <input style="margin: 0;width: 32px" type="checkbox"/><span>Task 2</span>
+                    </div>
+                   <div style="float: left;text-align: left;margin: 40px;">
+                        <span><b>SP000000020</b></span> <br/>
+                        <span>Created on 19/07/2019-11:11:11</span><br/>
+                        <span>...</span><br/>
+                    </div>
+                   <div style="float: left;margin: 40px;">
+                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>
+                       <br/>
+                       <br/>
+                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                    </div>
+                    <br clear="bot h"/>
+                    <br clear="both"/>
+                </li>
+
+                <! -- Ongoing Task -- >
+                <li class="ongoing" style="display: block">
+                    <div style="float: left;margin: 40px;">
+                    <input style="margin: 0;width: 32px" type="checkbox"/><span>Task 3</span>
+                    </div>
+                   <div style="float: left;text-align: left;margin: 40px;">
+                        <span><b>SP000010123</b></span> <br/>
+                        <span>Created on 11/01/2020-11:12:44</span><br/>
+                        <span>The third time try (Task Desc)</span><br/>
+                    </div>
+                   <div style="float: left;margin: 40px;">
+                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>
+                       <br/>
+                       <br/>
+                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                    </div>
+                    <br clear="both"/>
+                    <br clear="both"/>
+                </li>
+
+                < !-- Ongoing Task -- >
+                <li class="finished" style="display: block">
+                    <div style="float: left;margin: 40px;">
+                    <input style="margin: 0;width: 32px" type="checkbox"/><span>Task 4</span>
+                    </div>
+                   <div style="float: left;text-align: left;margin: 40px;">
+                        <span><b>SP000000020</b></span> <br/>
+                        <span>Created on 14/02/2020-01:33:44</span><br/>
+                        <span>TA of SP000000020 </span><br/>
+                    </div>
+                   <div style="float: left;margin: 40px;">
+                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>
+                       <br/>
+                       <br/>
+                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                    </div>
+                    <br clear="both"/>
+                    <br clear="both"/>
+                </li>
+
+                < !-- Finished Task -- >
+                <li class="finished" style="display: block">
+                    <div style="float: left;margin: 40px;">
+                    <input style="margin: 0;width: 32px" type="checkbox"/><span>Task 5</span>
+                    </div>
+                   <div style="float: left;text-align: left;margin: 40px;">
+                        <span><b>SP000000020</b></span> <br/>
+                        <span>Created on 14/02/2020-02:13:42</span><br/>
+                        <span> >SP000000020 Finished</span><br/>
+                    </div>
+                   <div style="float: left;margin: 40px;">
+                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>
+                       <br/>
+                       <br/>
+                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                    </div>
+                    <br clear="both"/>
+                    <br clear="both"/>
+                </li>
+                < !-- Finished Task -- >
+                <li class="finished" style="display: block">
+                    <div style="float: left;margin: 40px;">
+                    <input style="margin: 0;width: 32px" type="checkbox"/><span>Task-test</span>
+                    </div>
+                   <div style="float: left;text-align: left;margin: 40px;">
+                        <span><b>SP000646194</b></span> <br/>
+                        <span>Created on 05/06/2020-09:18:42</span><br/>
+                        <span> Desc-test</span><br/>
+                    </div>
+                   <div style="float: left;margin: 40px;">
+                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>
+                       <br/>
+                       <br/>
+                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                    </div>
+                    <br clear="both"/>
+                    <br clear="both"/>
+                </li>
+            </ul>
+            -->
+        </form>
+        </div>
+        <div style="clear:both;"></div>
+    </div>
+    <div>
+        <!-- Scenario 控件在这里制作 -->
+
+    </div>
+
+{% endblock pageContent %}
+
+{# part 4.list of button options #}
+{% block btnBar %}
+    <br/>
+    <div class="btnBar_index">
+        <a href="/index/"><button type="button" class="greenBtn">Back to Index</button></a>
+        <a href="/downloadManual/"><button type="button" class="greenBtn">Batch Delete</button></a>
+    </div>
+    <br/>
+<!--div class="btn_footer_placeholder_index">
+</div-->
+    <script type="application/javascript" src="/static/js/history.js"></script>
+{% endblock btnBar %}

@@ -8,26 +8,32 @@
     <h1>Initial and Scenario Configuration</h1>
 {% endblock pageHeader  %}
 
-<script type="application/javascript" src="/static/js/createTask.js"></script>
+
 
 {% block pageContent %}
     <div class="wrapper">
-
-    <form action="/upload/" method="post" enctype="multipart/form-data">{% csrf_token %}
-        <img id="img_excel" src="/static/img/execl_format.jpg" />
-        <span class="input_input_note">Uploaded Excel File Format</span>
-        <p id="p_upload_prompt" class="input_input_note"></p>
+    {% csrf_token %}
+    <!--form action="/upload/" method="post" enctype="multipart/form-data"> -->
+       <p id="p_upload_prompt" class="input_input_note"></p>
         <div class="input_input">
-            Upload Excel File:
-                <button class="input_input_right" type="submit">Upload</button>
-                <button class="input_input_right" type="button">
-                    <label for='input_excel' class='input_input_right'>Browser from PC</label>
-                    <input id='input_excel'  style="display:none" type="file" name="excel_in"/>
-                </button>
+            Upload Excel File: &nbsp;&nbsp;<span id="input_filename"></span>
+            <button onclick="upload()" class="greenBtn btnAtList input_input_right" type="submit">Upload</button>
+            <a style="width: 200px"><button class="greenBtn btnAtList input_input_right" type="button">
+                <label for='input_excel' >Select File</label>
+                <input id='input_excel'  style="display:none" type="file" name="excel_in"/>
+            </button></a>
              <br/>
-            <span class="input_input_note">* Note: the uploaded excel file content structure should follow by the above picture</span>
+            <span class="input_input_note">* Note: the uploaded excel file content structure should follow by the above picture</span> <br/>
+            <span class="input_input_note"> Uploaded Excel File Format</span>
+            <button type="button" class="btnAtList greenBtn-small" id="imgSwitchBtn" onclick="imgTableSwitch('img')">Show Table</button>
+            <button type="button" class="btnAtList greenBtn-small" id="excelSwitchBtn" onclick="imgTableSwitch('excel')">Show Image</button>
+            <div style="clear: both">
+            <img id="img_excel" src="/static/img/execl_format.jpg" />
+            <div id="excel"></div>
+            </div>
         </div>
-    </form>
+
+    <!--/form-->
     <br/>
     <form action="/config/" method="post" enctype="multipart/form-data">{% csrf_token %}
          <div class="input_input">
@@ -53,7 +59,13 @@
                      <input type="text" name="CW_end" />
                  </div>
              <br/>
-        </div>
+        </div> <br/>
+         <div class="input_input" style="clear: both">
+            Packaging Unit:
+                <input class="input_input_right" type="text" name="packagingUnit" />
+             <br/>
+            <span class="input_input_note"> Optional item. Give a name for distinguishing different ReCAST task</span>
+         </div>
         <br/>
         <div class="input_input">
              Weight the scenarios
@@ -64,7 +76,7 @@
                       <th>Scenario No.</th>
                       <th>Customer Weight</th>
                       <th>Stock Weight</th>
-                      <th>&nbsp;</th> <!-- minus symbol -->
+                      <th>&nbsp;delete </th> <!-- minus symbol -->
                     </tr>
                   </thead>
                   <tbody id="tb_snr">
@@ -72,48 +84,68 @@
                       <td>Scenario&nbsp; <span class="span_snr_no">1.</span> </td>
                       <td><input type="text" name="CW_input"/></td>
                       <td><input type="text" name="SW_input"/></td>
-                        <td><span class="minus">-</span></td>
+                      <td class="td-symbol"> <img onclick='deleteScenario(this)' class="minus" src="/static/img/mins.png"/> </td>
                     </tr>
                   </tbody>
                   <tfoot>
                     <tr>
-                        <td><span class="add">+</span></td>
+                        <td  class="td-symbol"> <img  class="add" src="/static/img/plus.png"/> </td>
                     </tr>
                   </tfoot>
                 </table>
                 <br/>
                 <span class="input_input_note">* Note: value range in [0,1]</span>
                 <script type="application/javascript" >
-                    var add = document.getElementsByClassName("add")[0] // Only one add class element
-                    //Initalize minus onlick event
-                    var minusList = document.getElementsByClassName("minus")
-                    //for(var each_span_ele in minusList) {
-                    //    each_span_ele.onclick=function (ev) {
-//
-                    //    }
-                   // })
-                    //TODO: bind event to minus
+                        var minusList = document.getElementsByClassName("minus");
+                        //var removedScenarioNo = []
+                        // sNum is start from 1, rather than 0. Because it is the number assigned from 1 rather index.
+                        function deleteScenario(imageElement) {
+                            //removedScenarioNo.push(sNum);
+                            //tr = [...minusList][sNum-1].parentElement.parentElement
+                            //tr.remove()
+                            td=imageElement.parentElement;
+                            tr=td.parentElement;
+                            tr.remove()
+                        }
 
-                    var snr_no = 1;
-                    add.onclick = function (ev) {
-                        var tb_snr = document.getElementById("tb_snr");
-                        tb_snr.innerHTML = tb_snr.innerHTML
-                            + '<tr><td>Scenario&nbsp; <span class="span_snr_no">'+ ++snr_no +'</span>.</td> \
+                        var add = document.getElementsByClassName("add")[0] // Only one add class element
+                        //Initalize minus onlick event
+
+                        //for(var each_span_ele in minusList) {
+                        //    each_span_ele.onclick=function (ev) {
+//
+                        //    }
+                        // })
+                        //snr_no = 1, is already defined.
+                        var snr_no = 2;
+                        add.onclick = function (ev) {
+                            var tb_snr = document.getElementById("tb_snr");
+                            tb_snr.innerHTML = tb_snr.innerHTML
+                                + '<tr><td>Scenario&nbsp; <span class="span_snr_no">' + snr_no + '</span>.</td> \
                                 <td><input type="text" name="CW_input"/></td>\
                                 <td><input type="text" name="SW_input"/></td>\
-                                <td><span class="minus">-</span></td></tr>'
-                    }
+                                <td class="td-symbol"> <img class="minus" onclick="deleteScenario(this)" src="/static/img/mins.png"/> </td></tr>'
+                            snr_no++;
+                        }
+
                 </script>
             </div>
             <br/>
     </div>
-
+<script type="application/javascript" src="/static/js/createTask.js"></script>
+{#<script type="application/javascript">#}
+{#    var data = []#}
+{#    function upload_callback() {#}
+{#        data = {{ data | safe }}#}
+{#    }#}
+{#    renderExcel(data)#}
+{#</script>#}
 {% endblock pageContent %}
 
 {# part 4.list of button options #}
 {% block btnBar %}
-        <button type="button"><a href="/index/">Quit</a></button>
-        <button type="submit"> Next </button>
+        <button class="greenBtn" type="button" onclick="window.location.href='/index/'">Quit</button>
+        <button class="greenBtn" type="button" onclick="pageSubmit(this)"> Next </button>
     </form>
     </div>
 {% endblock btnBar %}
