@@ -13,7 +13,7 @@ class ExcelFileOpearator():
         pass
 
     @staticmethod
-    def handle_upload_file(file):
+    def handle_upload_file(file): #, CW_start):
         # 产生一个独一无二的文件名-这里用时间作为文件名->只是一个暂时处理用的，读入数据后立马删除了。
         current_time = time.strftime('%Y-%m-%d@%X', time.localtime())
         filename = current_time.replace(":", "_")
@@ -21,12 +21,14 @@ class ExcelFileOpearator():
         path = '/media/uploads/'  # 上传文件的保存路径，可以自己指定任意的路径
         abs_filename = path + filename
         if not os.path.exists(path):
-            os.makedirs(path)
+            print(os.makedirs(path))
+        #else:
+            # file path already exist
         with open(abs_filename, 'wb+') as destination:  # open返回一个文件对象
             for chunk in file.chunks():
                 destination.write(chunk)
         destination.close()
-        return Parser.parse_upload_file(abs_filename)
+        return Parser.parse_upload_file(abs_filename )
 
 '''
     def upload_views(request):

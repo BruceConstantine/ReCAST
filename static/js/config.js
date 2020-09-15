@@ -1,6 +1,7 @@
 //variable upgrade
 //data = [],  container = document.getElementById('BS_table'), hot;
-var table_BS;
+var table_BS, hot_allow;
+
 var CW1, CW2;
 function setBSTableContent(rowname, value) {
     var row;
@@ -71,11 +72,43 @@ function pageSubmit(btn) {
     //var btn= document.getElementById('submit')
     var MBS_input= document.getElementById('MBS_input')
     var RBS_input= document.getElementById('RBS_input')
-    var templist = table_BS.getData()
-    var MBSList = templist[0]
-    var RBSList = templist[1]
+    var templist_BS = table_BS.getData()
+    var MBSList = templist_BS[0]
+    var RBSList = templist_BS[1]
     MBS_input.value = listStringfy(MBSList)
     RBS_input.value = listStringfy(RBSList)
+
+    var allow_use_binary_list = [] // only 1 or 0
+    var templist_Allow = hot_allow.getData()
+    var i_max = templist_Allow.length, j_max = 0;
+    if(i_max>0)
+        j_max = templist_Allow[0].length;
+        console.log("j_max="+j_max)
+        console.log("j_max="+j_max)
+    for (var i_ = 0; i_ < i_max; i_++){
+        var templist_Allow_aRow = new Array();
+        for (var j_ = 0; j_ < j_max; j_++){
+            if (undefined == templist_Allow[i_][j_]){
+                console.log("i_,j_=")
+                console.log(i_,j_)
+                console.log();
+            }
+           if ( (templist_Allow[i_][j_]).trim().toLowerCase() == 'yes'){
+                templist_Allow_aRow.push(1);
+           } else {
+                templist_Allow_aRow.push(0);
+           }
+        }
+        allow_use_binary_list.push(templist_Allow_aRow);
+    }
+    var allowTable_input= document.getElementById('allowTable_input')
+    // Here is to test if a list of int [1,0,0,0,1,1...] can be send to server.
+
+    //JSON.stringify can keep the origin structure of a int list [[1,1],[2,2]],
+    //rather than [1,1,2,2].
+    allowTable_input.value = JSON.stringify(allow_use_binary_list);
+    console.log(allowTable_input.value)
+
     __submit(btn)
     //btn.click = '';
     //btn.type = 'submit'
@@ -239,7 +272,7 @@ window.onload = function () {
     //hot.container.onmousedown = function(){alert('down')}
     //hot.getDataAtRow(0)
 
-    var  hot_allow = new Handsontable(document.getElementById('allow_table'), AllowTableConfig);
+    hot_allow = new Handsontable(document.getElementById('allow_table'), AllowTableConfig);
 
 	var hot3 = new Handsontable(container3 = document.getElementById('RFtable'), {
         data: getRFtable_content(CW_start,CW_end), //JSON.parse(JSON.stringify(getRFtable_content(CW_start,CW_end))),

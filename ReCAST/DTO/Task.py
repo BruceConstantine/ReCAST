@@ -117,6 +117,7 @@ class Task():
             'ATP_NTA': self.ATP_NTA,
             'RBS': self.RBS,
             'MBS': self.MBS,
+            'scenarioList': self.scenarioList
         }
 
     def getJSON(self):
@@ -127,6 +128,12 @@ class Task():
             return []
         else:
             return stringfiedList #.split(',')
+
+    def setATP_NTA(self,ATP_NTA_in):
+        self.ATP_NTA = ATP_NTA_in;
+
+    def getATP_NTA(self):
+        return  self.ATP_NTA;
 
 # class Task():
 #     def __init__(self,taskName='',taskDescription='', currentPage='',

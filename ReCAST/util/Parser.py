@@ -58,6 +58,7 @@ class Parser():
         customerList = []
         productName=''
         ATP_NTA_row=[]
+        CW_list = []
         customer = Customer()
         # 再遍历所有行
         for row in range(0, max_row_num):
@@ -70,6 +71,9 @@ class Parser():
                 cell_value = sheet.cell(row, col).value
                 # 把数据追加到excel_list中
                 excel_list.append(cell_value)
+                #briefly check for the CW-cells which should be more strict rather than only check if a cell starting with 'CW'
+                if str(cell_value).strip().startswith("CW"):
+                    CW_list.append(int(cell_value.strip()[2:]))
                 # 如果发现Plant ATP的cell，就检测所在行，获取这一行的所有值。
                 if cell_value ==  'Plant ATP (Adj)':
                     plant_ATP = sheet.row_values(row)[2:]
@@ -89,12 +93,15 @@ class Parser():
                 if cell_value == 'Confirmed Orders (CMAD)': #'Target Allocation':
                     # TA = TA_row[2:]
                     CMAD = sheet.row_values(row)
-                    customer.setName(CMAD[0])
-                    customer.setCMAD(CMAD[2:])
+                    #customer.setName(CMAD[0])
+                    #customer.setCMAD(CMAD[2:])
                     # 如果不提前吧Min RR写在前面就会影响这里的赋值：getMR的赋值
-                    customerList.append(Customer(customer.getName(),customer.getCMAD()))
+                    customerList.append(Customer(CMAD[0],CMAD[2:]))
+                    print("!!!!!!!!! CMAD-"+str(CMAD[0])+": "+str(CMAD[2:]))
+                    print("原CMAD整一行："+str(CMAD))
+                    print("\n")
             excel_table.append(excel_list)
-        excel_data = Excel_In(plant_ATP, ATP_NTA_row, customerList, excel_table, productName)
+        excel_data = Excel_In(plant_ATP, ATP_NTA_row, customerList, CW_list, excel_table, productName, abs_filename)
         # print(excel_data.getJSON())
         # print(excel_table)
         # return  column

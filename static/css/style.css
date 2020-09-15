@@ -456,9 +456,9 @@ table{
   float:left;
   width: 82%;
   /*Useless feature--> height:80%;*/
-  /*overflow: hidden;*/
+  /*overflow: hidden;
   overflow-y: scroll;
-  overflow-x: scroll;
+  overflow-x: scroll;*/
 }
 .btnAtList{
   display: block;
@@ -529,3 +529,40 @@ hr{
   text-align: center;
   clear: both;
 }
+
+  #dropdownList-content{
+    width: 280px;
+    height: 42px;
+    line-height: 42px;
+    padding-left: 10px;
+    background: rgb(255, 255, 255);
+    border-radius: 2px;
+    border: 1px solid rgb(1, 1, 1);
+    font-size: 16px;
+    font-family: MicrosoftYaHei;
+    color: rgb(61, 61, 61);
+    cursor: pointer;
+  }
+  #dropdownList-selectImg{
+    position: absolute;
+    top:13px;
+    right: 10px;
+    cursor: pointer;
+  }
+  #dropdownList-selectItem{
+    display: none;
+    border: 1px solid  rgb(61, 61, 61);
+    width: 280px;
+  }
+  #dropdownList-selectItem ul{
+    list-style: none;
+  }
+  #dropdownList-selectItem ul li{
+    height: 30px;
+    line-height: 30px;
+    padding-left: 5px;
+    cursor: pointer;
+  }
+  #dropdownList-selectItem ul li:hover{
+    background-color:#f5f7fa;
+  }

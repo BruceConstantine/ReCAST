@@ -15,9 +15,11 @@
     var plantATP = eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
     var ATP_NTA  = eval('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
     var customerObjList = eval('{{  customerList }}'.replace(/&quot;/g,"'"))
-    var customerList_name = []
-    var customerList_CMAD = []
 
+    var customerNameList  = {{ customerNameList |safe }}
+    console.log(customerNameList)
+    var customerList_CMAD = []
+    console.log(customerObjList)
     var customerList_All = []
     customerObjList.forEach(function(item){
         var aatp_aCustomer = item["AATP"]
@@ -34,7 +36,6 @@
                 customerList_All_a_customer[i] = cmad_aCustomer[parseInt(i/3)]
             }
         }
-        customerList_name.push(item["name"])
         customerList_CMAD.push(cmad_aCustomer)
         customerList_All.push(customerList_All_a_customer)
     })

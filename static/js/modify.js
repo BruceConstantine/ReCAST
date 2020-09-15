@@ -21,7 +21,7 @@ window.onload = function () {
     function getHeader_row() {
         //return ['Plant ATP','Customer1 ','Customer 2', 'Customer 3']
         result = ['','Plant ATP','']
-        customerList_name.forEach(function (item) {
+        customerNameList.forEach(function (item) {
             result.push( item )
         })
         return result;
@@ -125,7 +125,7 @@ window.onload = function () {
             }
         },
         legend: {
-            data: customerList_name
+            data: customerNameList
         },
         calculable: true,
         xAxis: [{
@@ -166,13 +166,13 @@ window.onload = function () {
                 }
             }
         }],
-        series: (function (customerList_name,customerList_CMAD){
+        series: (function (customerNameList,customerList_CMAD){
                 result = []
                 l=customerList_CMAD.length
 
                 for (var i = 0 ; i < l; i++) {
                     result.push({
-                        name: customerList_name[i],
+                        name: customerNameList[i],
                         type: 'line',
                         symbol: 'none', //--> It means only mouse hover on it, then the data label can be displayed
                         smooth: 0.168,
@@ -195,7 +195,7 @@ window.onload = function () {
                     });
                 }
                 return result
-            })(customerList_name,customerList_CMAD)
+            })(customerNameList,customerList_CMAD)
     };
     // 一定不要忘了这个，具体是干啥的我忘了，官网是这样写的使用刚指定的配置项和数据显示图表。
     myChart.setOption(option);

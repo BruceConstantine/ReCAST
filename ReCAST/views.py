@@ -11,6 +11,7 @@ from django.shortcuts import render, HttpResponse, redirect
 
 # Create your views here.
 #from ReCAST.DTO import DataTransferObj_GurobiInterface
+from ReCAST.DTO.Scenario import Scenario
 from ReCAST.DTO.Task import Task
 from ReCAST.models import Task as Taskmodel
 from ReCAST.models import User as Usermodel
@@ -44,12 +45,14 @@ def __hash(password):
 
 def getTaskAtSession(request):
     task = request.session.get("task")
+    print("in function getTaskAtSession(request): task = ")
+    print(task)
     if task == None:
         task = {}
     return task
 
 def index(request):
-    print(request.headers)
+    #print(request.headers)
     if request.method == 'POST':
         form = request.POST
         # if form.is_valid():
@@ -72,9 +75,15 @@ def index(request):
         else: # if user not exist
             # Refactor: return render(request, 'login.html', {"msg": user is not registered})
             return render(request, 'login.html',{'msg':"Username not exist"})
-    # Generally 'login function' can not be implemented by GET. 
-    #elif request.method == 'GET' or others
-    return render(request, 'login.html')
+        # Generally 'login function' can not be implemented by GET.
+        #elif request.method == 'GET' or others
+        return render(request, 'login.html')
+    # However, when user logined, it is possible let user access our platform buy GET method.
+    if request.method == 'GET':
+        if request.session.has_key('username') and request.session['username'] != None:
+            return render(request, 'index.html')
+        else:
+            return render(request, 'login.html', {'msg': "Login Fristly."})
 
 def login(request):
     return HttpResponse('login.html')
@@ -97,6 +106,7 @@ def display(request):
 
 
 def createTask(request):
+    # This means the request must from a page rather than user'input or GET method HTTP request.
     #request.headers['type'] is string type.
     if request.headers.__contains__('Referer'):
         url_origin = request.headers['Referer']
@@ -118,29 +128,39 @@ def createTask(request):
 def upload(request):
     if request.method == "POST":
         file = request.FILES['excel_in']
-        print(request.POST)
+        #print(request.POST)
+        if file is None:
+            return HttpResponse("No File are uploaded!")
         #if file:  # len(request.FILES.keys()) != 0
             # Load Excel data to session
-        excel_data_json = ExcelFileOpearator.handle_upload_file(file)  # str(request.FILES['file']) --> None
-        jsonObj=json.loads(excel_data_json)
-        # pid is productname
-        request.session["pid"]      = jsonObj["productName"]
-        request.session["plantATP"] = jsonObj["plantATP"]
-        request.session["ATP_NTA"]  = jsonObj["ATP_NTA"]
-        request.session["excelTable"]   = jsonObj["excelTable"]
-        request.session["customerList"] = jsonObj["customerList"]
-        # a = request.session.get('username')
-        #return JsonResponse(excel_data_json)
-        print(jsonObj)
-        return HttpResponse(excel_data_json)
+        else:
+            excel_data_json = ExcelFileOpearator.handle_upload_file(file)  # str(request.FILES['file']) --> None
+            jsonObj=json.loads(excel_data_json)
+            # pid is productname
+            request.session["pid"]      = jsonObj["productName"]
+            request.session["plantATP"] = jsonObj["plantATP"]
+            request.session["ATP_NTA_row"]  = jsonObj["ATP_NTA_row"]
+            request.session["excelTable"]   = jsonObj["excelTable"]
+            #customerList is a list of Customer object
+            request.session["customerList"] = jsonObj["customerList"]
+            request.session["filename_upload"] = jsonObj["filename"]
+            request.session["CW_list"] = jsonObj["CW_list"]
+            # a = request.session.get('username')
+            #return JsonResponse(excel_data_json)
+            #print(jsonObj)
+            print( request.session["customerList"] )
+            print( "--------------------------" )
+            print( request.session["customerList"][0]['CMAD'] )
+            print( "--------####################################------------" )
+            return HttpResponse(excel_data_json)
 
-        # file = request.FILES['excel_in']
-        # if file:  # len(request.FILES.keys()) != 0
-        #     # Load Excel data to session
-        #     excel_data_json = ExcelFileOpearator.handle_upload_file(file)  # str(request.FILES['file']) --> None
-        #     # a = request.session.get('username')
-        #     return render(request, 'createTask.html', {"data":excel_data_json})
-        #     # return HttpResponse(excel_data_json)
+            # file = request.FILES['excel_in']
+            # if file:  # len(request.FILES.keys()) != 0
+            #     # Load Excel data to session
+            #     excel_data_json = ExcelFileOpearator.handle_upload_file(file)  # str(request.FILES['file']) --> None
+            #     # a = request.session.get('username')
+            #     return render(request, 'createTask.html', {"data":excel_data_json})
+            #     # return HttpResponse(excel_data_json)
     else:
         return render(request, 'createTask.html')
     # return render('course/upload.html')
@@ -159,23 +179,48 @@ def config(request):
     if request.method == "POST":
         #print(request.POST)
         taskName = request.POST.get('taskName')
-        packageUnit = request.POST.get('packagingUnit')
+        packingUnit = request.POST.get('packingUnit')
         taskDescription = request.POST.get('taskDescription')
         CW_start = int(request.POST.get('CW_start'))
         CW_end   = int(request.POST.get('CW_end'))
         SW_input_list = request.POST.getlist('SW_input')
         CW_input_list = request.POST.getlist('CW_input')
         scenarioList=[]; arr_index = 0;
+
+        #update PlantATP once CW start\end are given
+        request.session["plantATP"] = getRealValuelistByCW(CW_start,CW_end,request.session['CW_list'],request.session['plantATP'] )
+        print('request.session["plantATP"] = '+str(request.session["plantATP"] ))
+
+        #record the original CMAD for each customer
+        origin_CMAD_order = []
+        customer_unparsed_dictlist = request.session["customerList"]
+        for customerDict in customer_unparsed_dictlist:
+            origin_CMAD_order.append(getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,
+                                                             cw_list=request.session["CW_list"],
+                                                             valuelist=customerDict["CMAD"]))
+
+        request.session["origin_CMAD_order"] = origin_CMAD_order
+        print(' request.session["origin_CMAD_order"]='+str(request.session["origin_CMAD_order"]))
+
+
         for stockWeight in SW_input_list:
             scenarioList.append([stockWeight,CW_input_list[arr_index]])
             arr_index+=1
         try:
             pid = request.session["pid"]
             plantATP = request.session["plantATP"]
-            ATP_NTA = request.session["ATP_NTA"]
+            ATP_NTA = request.session["ATP_NTA_row"][CW_start]
+
+
+
+            print("-------------")
+            print("in view.config: ATP_NTA = "+str(ATP_NTA))
+            print("-------------")
+
             customerList = request.session["customerList"]
             username = request.session["username"]
             currentPage = 'createTask'
+
             #get Scenario list
             '''print(pid)
             print(plantATP)
@@ -194,7 +239,7 @@ def config(request):
                 
             elif rowName == 'ATP_NTA':
         '''
-        task = Task(taskName, taskDescription, currentPage, username, pid, CW_start, CW_end, packageUnit,
+        task = Task(taskName, taskDescription, currentPage, username, pid, CW_start, CW_end, packingUnit,
                     plantATP=plantATP, ATP_NTA=ATP_NTA, scenarioList=scenarioList)
         # MBS =[], RBS =[]
        # maxDelay=None, enableRub=False, TA_rid=None, cid=None, date='')
@@ -203,7 +248,7 @@ def config(request):
                                               currentPage='createTask',
                                               username=request.session["username"],
                                               pid=pid,CW_start=CW_start, CW_end=CW_end, 
-                                              packageUnit=packageUnit,plantATP=plantATP,
+                                              packingUnit=packingUnit,plantATP=plantATP,
                                               enableRub=ATP_NTA, scenarioList=scenarioList)
                             
                             
@@ -224,9 +269,9 @@ def config(request):
         print("customerList: "+str(request.session["customerList"])) # [0],
     return render(request, 'config.html',
                     {'CW_start':taskDict['CW_start'],
-                    'CW_end':taskDict['CW_end'],
-                    'plantATP':json.dumps(taskDict["plantATP"]),
-                    'ATP_NTA':json.dumps(taskDict["ATP_NTA"]), #[0],
+                    'CW_end'   :taskDict['CW_end'],
+                    'plantATP' :json.dumps(taskDict["plantATP"]),
+                    'ATP_NTA'  :json.dumps(taskDict["ATP_NTA"]), #[0],
                     'customerList':json.dumps(request.session["customerList"])}) #JSONfy/serialization
    # if request.method == "GET":
    #     return render(request, '403.html')
@@ -235,7 +280,9 @@ def run(request):
     if request.method == "POST":
         task = getTaskAtSession(request)
         task["maxDelay"] = request.POST.get('maxdelay')
+        # what type of task["MBS"] is ? a big string.
         task["MBS"] =request.POST.get('MBS')
+        task["bin_use_from_stock"] =  json.loads(request.POST.get('bin_use_from_stock'))
         task["RBS"] =request.POST.get('RBS')
         request.session["task"]=task;
         print(task)
@@ -246,24 +293,69 @@ def run(request):
     datalist = [[93, 93, 0, 100.01], [20, 23, 26, 29]]
     dl=json.dumps(datalist)
     taskDict = getTaskAtSession(request)
-    customerList = run_gurobi()
-    request.session["customerList"] = customerList
+    #customerList = run_gurobi(abs_filename=request.session["filename_upload"],
+    scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
+                              CW_start=taskDict['CW_start'],CW_end=taskDict['CW_end'],CW_start_date=None,CW_end_date=None,
+                              packingUnit_in=taskDict["packingUnit"],
+                              MBS_in=taskDict["MBS"],RBS_in=taskDict["RBS"],
+                              plantATP_in=taskDict["plantATP"],
+                              ComfirmedOrder_in=request.session["customerList"],
+                              bin_usefrom_stock_in=taskDict["bin_use_from_stock"],
+                              ATP_NTA_in=int(taskDict["ATP_NTA"]),
+                              scenarioList_in=taskDict["scenarioList"],
+                              maxDelay_in=taskDict["maxDelay"]
+                              )
+    request.session["scenarioList_objList"] = scenarioList_objList
+    '''
+    print("___________request.session['customerList'] ___________")
+    print( request.session["customerList"] )
+    print("_________type_____________")
+    print( type( request.session["customerList"] ) )
+    print('__________json.dumps(request.session["customerList"])___________')
+    print(json.dumps(request.session["customerList"]))
+    print("_________type_____________")
+    print( type( json.dumps(request.session["customerList"]) ) )
+    '''
     return render(request, 'result.html',{'CW_start':taskDict['CW_start'],
                     'CW_end':taskDict['CW_end'],
                     'plantATP':json.dumps(taskDict["plantATP"]),
-                    'ATP_NTA':json.dumps(taskDict["ATP_NTA"]), #[0],
+                    'ATP_NTA':json.dumps(taskDict["ATP_NTA"]), #a row rather than ATP_NTA vlaue,
+                    'origin_CMAD_order': request.session["origin_CMAD_order"],
+                    'scenarioList_objList': scenarioList_objList,
+                    # 'customerNameList':json.dumps(Scenario.customerNameList),
+                    'customerNameList':Scenario.customerNameList,
                     'customerList':json.dumps(request.session["customerList"]),
+                    'customerList_forTemplate':request.session["customerList"],
                     #'customerList':json.dumps(customerList),
                     'datalist': dl})
 
+#k考虑是否允许出现end 比 start大的情况
+def getRealValuelistByCW(cw_start, cw_end, cw_list, valuelist):
+    #print("Start of getRealValuelistByCW")
+    #print("cw_start=" + str(cw_start) + "cw_end=" + str(cw_end))
+    #print("valuelist= " + str(valuelist)  )
+    l = valuelist.__len__()
+    #print("l =  " + str(l)  )
+    index_start = -1
+    index_end = -1
+    for index in range(l):
+        print(cw_list[index])
+        if cw_list[index] == cw_start :
+            index_start = index;
+        if cw_list[index] == cw_end :
+            index_end = index;
+    #print("end of getRealValuelistByCW")
+    return valuelist[index_start: index_end +1]
+
 #return customerList
-def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW start and end time
+def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> request.file["XXXX"]
+                CW_start=None, CW_end=None,      # int: integer value of CW start and end time
                  CW_start_date=None, CW_end_date=None,  # string type: date value in string
                  packingUnit_in=None,  # int: integer value >= 100
                  MBS_in=[],  #(M ) int list: integer list, from index CW_start to CW_end
                  RBS_in=[],  #(Reserve Buffer stock) int list: integer list, from index CW_start to CW_end
                  plantATP_in=None,  # int list: integer list, from index CW_start to CW_end
-                 ComfirmedOrder=None,  #the list of dictionary whose key is the name of customer and
+                 ComfirmedOrder_in=None,  #the list of dictionary whose key is the name of customer and
                                         # whose value (CMAD) is the integer list from index CW_start to CW_end
                                         # format :
                                         # [
@@ -300,50 +392,120 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
     # 2- The results calculate for each loops (based on scenarios). [refer to @zhikang comment].
     #    you should read the values in each loop and store them according to you code.
     # This is just a sample creation for model. It load an excel file frol local system.
-    df = pd.read_excel(io='181218_TASUI extract_SP000646194.xls', header=None,
+    df = pd.read_excel(io=abs_filename, header=None,
                        skiprows=2, usecols="I:BE")  # H:BF manualy added
+    '''181218_TASUI extract_SP000646194.xls'''
 
-    df_main = df.iloc[[1, 11, 14, 21]]
+
     # extract CW
-    #CW_list = [i for i in range(CW_start, CW_end)]
+    CW_list = [i for i in range(CW_start, CW_end)]
 
     # extract Date
     #date_list = lambda d_from, d_to: [d_from, d_to]
 
-    # extract CMAD
-
-
-    # df_list = df_main.to_numpy().tolist() df_list is the list of CMAD
+    # extract Date
+    #df_main = df.iloc[[1, 11, 14, 21]]
+    df_main = df.iloc[[1, 11]]
     df_list = df_main.to_numpy().tolist()
+    '''
+    # df_list = df_main.to_numpy().tolist() df_list is the list of CMAD
+    df_list = df_main.to_numpy().tolist() 
+    print("###############################################")
+    print("-------- Plant ATP ---------")
+    print(df_list[0])
+    print("-------- Date ---------")
+    print(df_list[1])
+    print("-------- CMAD for Customer no.1 --------")
+    print(df_list[2])
+    print("-------- CMAD for Customer no.2 ---------")
+    print(df_list[3])
+    print("###############################################")
 
-    #print(df_list)
     len(df_list[1])
+    '''
+
     # fit with Matlab file to compare the results
 
+    #print("----------------------")
     #confirmedOrder = {"customer1": df_list[2], "customer2": df_list[3]}
-    confirmedOrder = ComfirmedOrder
+    len_CW= int(CW_end)-int(CW_start)+1;
+    print("!!!!!!!!!!!!!!!!!!!!CW_end,CW_start!!!!!!!!!!!!!!!!!!!");
+    print(CW_end,CW_start);
+    confirmedOrder = ComfirmedOrder_in
+    for customerDict in confirmedOrder:
+        customerDict['CMAD'] = list(map(int, customerDict['CMAD']))[CW_start-1:CW_end]
+        #print('CMAD')
+        #print(customerDict['CMAD'])
+        #print(len(customerDict['CMAD']))
+        #print()
 
-    plantATP = df_list[0]
+    #print("----------------------")
+    #plantATP = df_list[0]
+    plantATP = list(map(int,plantATP_in))[CW_start-1:CW_end]
+    #print("plantATP")
+    #print(plantATP)
+    #print(len(plantATP))
+    print()
+
     #plantATP = plantATP_in
-    MBS = [400000] * len(df_list[0])
-    #MBS = MBS_in
-    RBS = [100000] * len(df_list[0])
-    #RBS = RBS_in
-    ATP_NTA = ATP_NTA_in
-    packingUnit = packingUnit_in
+
+    #print("----------------------")
+    #MBS = [400000] * len(df_list[0])
+    # MBS_in is a big string, rather than a list of string
+    MBS = list(map(int,MBS_in.split(',')))
+    #print("MBS")
+    #print(MBS)
+    #print()
+
+
+    print("----------------------")
+    #RBS = [100000] * len(df_list[0])
+    RBS = list(map(int,RBS_in.split(',')))
+    # print("RBS")
+    #print(RBS)
+    #print(len(RBS))
+    #print()
+
+    #print("----------------------")
+    ATP_NTA = int(ATP_NTA_in)
+    # print("ATP_NTA")
+    #print(ATP_NTA)
+    #print()
+
+
+    #print("----------------------")
+    packingUnit = int(packingUnit_in)
+    #print("packingUnit")
+    #print(packingUnit)
+    #print()
+
+
     scenarioList = scenarioList_in
+    len_scenarioList = len(scenarioList)
+    for index in range(len_scenarioList):
+        scenarioList[index]  = list(map(float, scenarioList[index] ))
+        #print(scenarioList[index])
+        #print()
+    #print("---scenarioList=---")
+    #print(scenarioList)
+    #print( len(scenarioList))
     #scenarioList = [[0.9, 0.1], [0.7, 0.3], [0.4, 0.6]]
-    maxDelay = maxDelay_in
+
+    #int            str
+    maxDelay = int(maxDelay_in)
+    #print("----------------------")
+    #print("maxDelay")
+    #print(maxDelay)
 
     ######################################
-    confirmedOrder = {"customer1": df_list[2], "customer2": df_list[3] }
-    plantATP = df_list[0]
-    MBS = [400000] * len(df_list[0])
-    RBS = [100000] * len(df_list[0])
-    ATP_NTA = 535500
-    packingUnit = 500
-    scenarioList = [[0.9, 0.1], [0.7, 0.3], [0.4, 0.6]]
-    maxDelay = 10
+    #confirmedOrder = {"customer1": df_list[2], "customer2": df_list[3] }
+    #plantATP = df_list[0]
+    # MBS = [400000] * len(df_list[0])
+    # RBS = [100000] * len(df_list[0])
+    # ATP_NTA = 535500
+    # packingUnit = 500
+    # scenarioList = [[0.9, 0.1], [0.7, 0.3], [0.4, 0.6]]
+    # maxDelay = 10
     ######################################
 
     # defining list of index
@@ -351,16 +513,36 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
 
     time_periods = plantATP
     allocation_time = plantATP
-    customers = list(confirmedOrder.keys())
 
     atp = (np.array(plantATP)) / packingUnit
     buffer_stock_min = np.array(MBS) / packingUnit
+    #print(atp)
+    #print(buffer_stock_min)
     reserve_Buffer = np.array(RBS) / packingUnit
     intial_Buffer_Value = ATP_NTA / packingUnit
 
+    #print("-----Customer orders-----")
+    customers=[]
+    for oder_dictItem in confirmedOrder:
+        customers.append(oder_dictItem["name"])
+    #print("customers:")
+    #print(customers)
+    #print()
+
+    #extract CMAD
+    order=[]
+    for oder_dictItem in confirmedOrder:
+        order.append(oder_dictItem["CMAD"])
+    print("order:(CMAD)")
+    print(order)
+    print()
+
+    '''
+    #order is list of CMAD
     order = []
     for key in confirmedOrder:
         order.append(confirmedOrder[key])
+    '''
 
     orders = np.array(order) / packingUnit
     '''
@@ -371,13 +553,16 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
         #  this is multidimensional list based on number of weeks and number of custmers
     print(bin_usefrom_stock)
     '''
+
+    #TODO: some problem occur on input '1' or '0'
     bin_usefrom_stock = bin_usefrom_stock_in
+    #print(bin_usefrom_stock_in)
     # you have it in format of lists with dimension of number of customers * CW
 
     ###################
-    bin_usefrom_stock = [1] * len(orders)
-    for i in range(len(orders)):
-        bin_usefrom_stock[i] = [1] * len(atp)
+    #bin_usefrom_stock = [1] * len(orders)
+    #for i in range(len(orders)):
+    #    bin_usefrom_stock[i] = [1] * len(atp)
     ###################
 
     max_delay = maxDelay
@@ -422,7 +607,9 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
                                           name='Var_Allocation_Stock')
 
     var_BufferStock = reCAST.addVars(len(atp), vtype=GRB.INTEGER, name='Var_BufferStock')
-
+    #print("@@@@@@var_BufferStock@@@@@@")
+    #print(len(atp))
+    #print(var_BufferStock)
     var_z = reCAST.addVars(len(atp), vtype=GRB.BINARY, name='useStockOrNot')
 
     # var_Allocation_ATP = reCAST.addVars(len(orders), len(atp), len(atp),lb = 0,
@@ -500,7 +687,12 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
     reCAST.Params.FeasibilityTol = 1e-9  # -6 -9
     reCAST.Params.OptimalityTol = 1e-9
 
-    for scenario in range(len(scenarioList)):
+
+    len_scenarioList = len(scenarioList)
+
+    scenarioList_result = []
+
+    for scenario in range(len_scenarioList):
         weight_Allocation = scenarioList[scenario][0]
         weight_ReserveBuffer = scenarioList[scenario][1]
 
@@ -511,14 +703,21 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
         #     Exteraction of allocated quantities from ATP in format of dataframe
 
         rows_ATP = customers.copy()
-        columns_ATP = df_list[1].copy()
+        columns_ATP = df_list[1].copy() #date
         allocation_ATP_Plan = pd.DataFrame(columns=columns_ATP, index=rows_ATP, data=0.0)
 
         for i, r, t in var_Allocation_ATP.keys():
             if (abs(var_Allocation_ATP[i, r, t].x > 1e-6)):
                 allocation_ATP_Plan.iloc[i, t] += np.round(var_Allocation_ATP[i, r, t].x * packingUnit, 0)
 
-        print(allocation_ATP_Plan)
+        # what is the means for 'var_Allocation_ATP[i, r, t].x'
+        # [i,r,t]
+        # i -> cutomer
+        # r & t -> different times
+        # r: Week customer request for  // request time
+        # t: time allo.. // ....
+
+        #print(allocation_ATP_Plan.to_dict())
 
         #     Exteraction of allocated quantities from Stock in format of dataframe
 
@@ -532,18 +731,38 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
             if (abs(var_Allocation_Stock[i, r, t].x > 1e-6)):
                 allocation_Stock_Plan.iloc[i, t] += np.round(var_Allocation_Stock[i, r, t].x * packingUnit, 0)
 
-        print(allocation_Stock_Plan)
+        #print("allocation_Stock_Plan: length:")
+        #print(allocation_Stock_Plan.__len__())
+        #print("allocation_Stock_Plan: length:")
+        #print(allocation_Stock_Plan.to_dict())
 
         #     Exteraction of buffer stock level
         rows_buffer = ["Buffer Plan"]
-        columns_buffer = df_list[1].copy()
+        #columns_buffer is date, which also need to cooresoponding to the expected CW length.
+        columns_buffer = df_list[1].copy()#[CW_start-1:CW_end]
         buffer_Plan = pd.DataFrame(columns=columns_buffer, index=rows_buffer, data=0.0)
 
         for t in var_BufferStock.keys():
             if (abs(var_BufferStock[t].x > 1e-6)):
                 buffer_Plan.iloc[0, t] += np.round(var_BufferStock[t].x * packingUnit, 0)
 
-        print(buffer_Plan)
+        #print(buffer_Plan.to_dict())
+
+        scenarioList_result.append(allocationPlan_to_customerList(customers, allocation_ATP_Plan.to_dict(), allocation_Stock_Plan.to_dict(), buffer_Plan.to_dict()))
+
+    print("------------------------------------------------")
+    print("------------------------------------------------")
+    print("------------------------------------------------")
+    print("------------------------------------------------")
+    print(scenarioList_result)
+    print("!!!!!!!!!!!END of scenarioList_result!!!!!!!!")
+    """Finished scenarioList loop"""
+    result = toScenarioObj_DictList(scenarioList_result,scenarioList)
+    print( "scenarioList=" + scenarioList.__str__() )
+    print()
+    for eachScenario in result:
+        print( eachScenario )
+    return result;
 
     #     Values of objectives for test
 
@@ -561,10 +780,20 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
     rows_ATP = customers.copy()
     columns_ATP = df_list[1].copy()
     allocation_ATP_Plan = pd.DataFrame(columns=columns_ATP, index=rows_ATP, data=0.0)
+    print("--------customers----------")
+    print(customers)
+    print("---------columns_ATP-------------")
+    print(columns_ATP)
+    print("---------BeforeAssignment: allocation_ATP_Plan-------------")
+    print(allocation_ATP_Plan)
 
     for i, r, t in var_Allocation_ATP.keys():
         if (abs(var_Allocation_ATP[i, r, t].x > 1e-6)):
             allocation_ATP_Plan.iloc[i, t] += np.round(var_Allocation_ATP[i, r, t].x * packingUnit, 0)
+
+    print("---------After : allocation_ATP_Plan-------------")
+    print(allocation_ATP_Plan)
+    print("---------END of After : allocation_ATP_Plan-------------")
 
     #allocation_ATP_Plan
 
@@ -599,8 +828,73 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
 
     #AATP_dict = allocation_ATP_Plan.to_dict()
     AStock_dict = allocation_Stock_Plan.to_dict()
+    print( allocation_Stock_Plan )
 
-    def getAllocationPlanList(plan_list):
+    return  scenarioList_result;
+
+def toScenarioObj_DictList(scenariolist, scenarioWeight_list):
+    objList = toScenarioObj_List(scenariolist, scenarioWeight_list)
+    result = [];
+    for scenarioObj in objList :
+        result.append(scenarioObj.getDict())
+    return result;
+
+def toScenarioObj_List(scenariolist, scenarioWeight_list):
+    index = 0;
+    scenario_list = [];
+    customerNameList = [];
+    for customer_dict_list in scenariolist:
+        if Scenario.customerNameList == []:
+            for eachCustomerName in customer_dict_list.keys():
+                customerNameList.append(eachCustomerName);
+
+        customer_AATP_ASTOCK_CMAD_list = []; # list of dictionary
+        for eachCustomer_AATP_ASTOCK_CMAD in customer_dict_list.values():
+            customer_AATP_ASTOCK_CMAD_list.append(eachCustomer_AATP_ASTOCK_CMAD);
+
+        scenario = Scenario(number=(index+1), customerList=customer_AATP_ASTOCK_CMAD_list,
+                            cusW = scenarioWeight_list[index][1],
+                            stoW=  scenarioWeight_list[index][0]);
+        Scenario.setCustomerNameList(customerNameList);
+        scenario_list.append(scenario);
+        index += 1 ;
+    return scenario_list;
+
+def allocationPlan_to_customerList(customers, allocation_ATP_Plan, allocation_Stock_Plan, buffer_Plan):
+    customerList_dict = {}
+    for customer in customers:
+        aCustomer_dict = {}
+        #aCustomer_dict["name"] = customer
+        aCustomer_dict["AATP"] = []
+        aCustomer_dict["AStock"] = []
+        #aCustomer_dict["BufferPlan"] = []
+        aCustomer_dict["CMAD"]   =  []
+        customerList_dict[customer]= aCustomer_dict
+
+    allocation_ATP_Plan_Values = allocation_ATP_Plan.values()
+    for allocation_ATP_plan in allocation_ATP_Plan_Values:  #for each CW, it contains all customer's allocation_ATP plan
+        for customer in customers:
+            customerList_dict[customer]["AATP"].append( allocation_ATP_plan[customer] )
+
+    allocation_Stock_Plan_Values = allocation_Stock_Plan.values()
+    for allocation_ATP_plan in allocation_Stock_Plan_Values:#for each CW, it contains all customer's allocation_ATP plan
+        for customer in customers:
+            customerList_dict[customer]["AStock"].append( allocation_ATP_plan[customer] )
+
+    CW_length = len(allocation_ATP_Plan)
+    for customer in customers:
+        CMAD_list = []
+        allocation_Stock_Plan_list = customerList_dict[customer]["AStock"]
+        allocation_ATP_plan_list   = customerList_dict[customer]["AATP"]
+        for i in range(CW_length):
+            CMAD_list.append( allocation_ATP_plan_list[i]+allocation_Stock_Plan_list[i])
+        customerList_dict[customer]["CMAD"] = CMAD_list.copy()
+
+    buffer_Plan_Values = buffer_Plan.values()
+    return customerList_dict;
+
+'''        
+def getAllocationPlanList(plan_list):
         value_list = plan_list.values.tolist()
         plan_dict = plan_list.to_dict()
         #date_list = plan_list.keys().array.to_numpy().tolist()
@@ -623,19 +917,24 @@ def run_gurobi( CW_start=None, CW_end=None,      # int: integer value of CW star
     for i in range(customerNamelist.__len__()):
         one_customer = {}
         one_customer["name"] = customerNamelist[i]
+
         value = []
+        # for each CW: CMAD_Result = AAT + AStock.
         for j in range(length):
             value.append(aatp[i][j] + astock[i][j])
         one_customer["CMAD"] = value
+
         one_customer["AATP"] = aatp[i]
         one_customer["AStock"] = astock[i]
+        one_customer["scenarioOrder"] = i+1
         customerList.append(one_customer)
     aatp = None
     astock = None
-    print("---------------")
-    print(customerList)
-    print("---------------")
+    #print("---------------")
+    #print(customerList)
+    #print("---------------")
     return customerList;
+'''
 
 def adv(request):
     print(request.headers)
@@ -650,12 +949,20 @@ def adv(request):
 
 
 def modify(request):
-    taskDict = getTaskAtSession(request)
+    taskDict = getTaskAtSession(request);
+    scenarioList_objList = request.session["scenarioList_objList"];
+    scenario_no =int( request.GET.get('s',1).strip());
+    scenario_index = scenario_no - 1;
+    #the selected scenario is actually the list of dictionary for each customer for one scenario case
+    selected_scenario = scenarioList_objList[scenario_index];
+    selected_customerList = selected_scenario['customerList'];
+    print(selected_scenario)
     return render(request, 'modify.html', {'CW_start':taskDict['CW_start'],
                     'CW_end':taskDict['CW_end'],
                     'plantATP':json.dumps(taskDict["plantATP"]),
                     'ATP_NTA':json.dumps(taskDict["ATP_NTA"]), #[0],
-                    'customerList':json.dumps(request.session["customerList"]) })
+                    'customerNameList' : Scenario.customerNameList,
+                    'customerList':json.dumps(selected_customerList) })
 
 
 def details(request):
@@ -848,7 +1155,42 @@ def getActiveCode(request):
 
 
 def update(request):
-    return None
+    if request.method == "GET":
+        taskDict = getTaskAtSession(request)
+        # customerList = run_gurobi(abs_filename=request.session["filename_upload"],
+        scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
+                                          CW_start=taskDict['CW_start'], CW_end=taskDict['CW_end'], CW_start_date=None,
+                                          CW_end_date=None,
+                                          packingUnit_in=taskDict["packingUnit"],
+                                          MBS_in=taskDict["MBS"], RBS_in=taskDict["RBS"],
+                                          plantATP_in=taskDict["plantATP"],
+                                          ComfirmedOrder_in=request.session["customerList"],
+                                          bin_usefrom_stock_in=taskDict["bin_use_from_stock"],
+                                          ATP_NTA_in=int(taskDict["ATP_NTA"]),
+                                          scenarioList_in=taskDict["scenarioList"],
+                                          maxDelay_in=taskDict["maxDelay"]
+                                          )
+        request.session["scenarioList_objList"] = scenarioList_objList
+        '''
+        print("___________request.session['customerList'] ___________")
+        print( request.session["customerList"] )
+        print("_________type_____________")
+        print( type( request.session["customerList"] ) )
+        print('__________json.dumps(request.session["customerList"])___________')
+        print(json.dumps(request.session["customerList"]))
+        print("_________type_____________")
+        print( type( json.dumps(request.session["customerList"]) ) )
+        '''
+        return render(request, 'result.html', {'CW_start': taskDict['CW_start'],
+                                               'CW_end': taskDict['CW_end'],
+                                               'plantATP': json.dumps(taskDict["plantATP"]),
+                                               'ATP_NTA': json.dumps(taskDict["ATP_NTA"]),
+                                               # a row rather than ATP_NTA vlaue,
+                                               'scenarioList_objList': scenarioList_objList,
+                                               # 'customerNameList':json.dumps(Scenario.customerNameList),
+                                               'customerNameList': Scenario.customerNameList,
+                                               'customerList': json.dumps(request.session["customerList"]),
+                                               'customerList_forTemplate': request.session["customerList"] })
 
 
 def delete(request):
