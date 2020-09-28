@@ -5,7 +5,7 @@ class Excel_In():
     # Python构造函数只有一个: 参数列表最长的一个覆盖其他的构造函数
     # 构造函数，初始化 -1 is an impossible value thus to assigned here for initialization
     #List of List (2D list )
-    def __init__(self, plantATP=[], ATP_NTA_row=[], customerList=[], CW_list=[], excelTable=[], productName='', filename=''): #plantATP->One Dimision; customerList->two dimension
+    def __init__(self, plantATP=[], ATP_NTA_row=[], customerList=[], CW_list=[], excelTable=[], productName='', filename='', date_list=[]): #plantATP->One Dimision; customerList->two dimension
         # private
         self.__plantATP = plantATP;
         self.__productName = productName;
@@ -15,6 +15,7 @@ class Excel_In():
         self.__CW_list = CW_list; # List of CW, for all date at uploaded excel.
         self.__excelTable = excelTable;
         self.__filename = filename;
+        self.__date_list = date_list;
 
     def get_productName(self):
         return self.__productName
@@ -43,6 +44,9 @@ class Excel_In():
     def get_filename(self):
         return  self.__filename;
 
+    def get_date_list(self):
+        return  self.__date_list;
+
     #这里是建立一个字典，把list作为值存入字典中去。
     # 不知道前端能不能处理 含有Python的List类型作为value 的JSON对象
     def getDict(self):
@@ -53,6 +57,7 @@ class Excel_In():
             'customerList': self.__customerList,
             'CW_list': self.__CW_list,
             'excelTable'  : self.__excelTable,
+            'date_list'  : self.__date_list,
             'filename'  : self.__filename
         }
 
@@ -69,6 +74,7 @@ class Excel_In():
                 'excelTable'  : obj.get_excelTable(),
                 'customerList': obj.get_customerJsonList(), #<--这个地方不是可序列化的类型,
                 'CW_list'     : obj.get_CW_list(),
+                'date_list'     : obj.get_date_list(),
                 'filename'    : obj.get_filename()
             })
        # return json.dumps(self,

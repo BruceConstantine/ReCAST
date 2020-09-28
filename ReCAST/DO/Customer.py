@@ -38,7 +38,6 @@ class Customer():
 
     def getCMAD(self):
          return self.__CMAD
-
     def setCMAD(self, CMAD):
          self.__CMAD = CMAD
 

@@ -145,6 +145,7 @@ def upload(request):
             request.session["customerList"] = jsonObj["customerList"]
             request.session["filename_upload"] = jsonObj["filename"]
             request.session["CW_list"] = jsonObj["CW_list"]
+            request.session["date_list"] = jsonObj["date_list"]
             # a = request.session.get('username')
             #return JsonResponse(excel_data_json)
             #print(jsonObj)
@@ -175,7 +176,9 @@ def downloadManual(request):
 
 
 def config(request):
-    task = getTaskAtSession(request)
+    #task = getTaskAtSession(request)
+    #TODO: task here should not be a session, which should be a task--- that need to be updated at upload function
+    task = request.session;
     if request.method == "POST":
         #print(request.POST)
         taskName = request.POST.get('taskName')
@@ -187,8 +190,22 @@ def config(request):
         CW_input_list = request.POST.getlist('CW_input')
         scenarioList=[]; arr_index = 0;
 
+        #TODO: bug here, we can't use absoluate value directly to get the len,as its length is not centainable
+        #request.session['CW_len']  = abs(CW_end-CW_start)
+        cw_list_origin = request.session['CW_list']
+        request.session['CW_list'] = generateCWList(cw_list_origin, CW_start, CW_end);
+        request.session['CW_len'] = get_slelectedCW_len(request.session['CW_list'])
+
+        request.session['CW_start']  = CW_start
+        request.session['CW_end']  = CW_end
+
+        # NOTE: update date_list
+        request.session["date_list"] = getRealValuelistByCW(CW_start, CW_end, cw_list_origin,
+                                                            request.session["date_list"])
+        print("request.session['date_list']"+str(request.session["date_list"]))
+
         #update PlantATP once CW start\end are given
-        request.session["plantATP"] = getRealValuelistByCW(CW_start,CW_end,request.session['CW_list'],request.session['plantATP'] )
+        request.session["plantATP"] = getRealValuelistByCW(CW_start,CW_end,cw_list_origin, request.session['plantATP'] )
         print('request.session["plantATP"] = '+str(request.session["plantATP"] ))
 
         #record the original CMAD for each customer
@@ -196,7 +213,7 @@ def config(request):
         customer_unparsed_dictlist = request.session["customerList"]
         for customerDict in customer_unparsed_dictlist:
             origin_CMAD_order.append(getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,
-                                                             cw_list=request.session["CW_list"],
+                                                             cw_list=cw_list_origin,
                                                              valuelist=customerDict["CMAD"]))
 
         request.session["origin_CMAD_order"] = origin_CMAD_order
@@ -206,32 +223,52 @@ def config(request):
         for stockWeight in SW_input_list:
             scenarioList.append([stockWeight,CW_input_list[arr_index]])
             arr_index+=1
-        try:
-            pid = request.session["pid"]
-            plantATP = request.session["plantATP"]
-            ATP_NTA = request.session["ATP_NTA_row"][CW_start]
+
+        #try:
+        pid = request.session["pid"]
+        plantATP = request.session["plantATP"]
+        def get_index(cw_list, CW_value ):
+            print('CW_value='+str(CW_value))
+            print(cw_list)
+            i=0;
+            for cw in cw_list:
+                print('cw='+str(cw)+'.')
+                if CW_value == cw:
+                    return i;
+                i+=1;
+            return -1;
+        #get the real ATP_NTA value at the line, the index of that should based on the first element.
+
+        i = get_index_atSelectedCWList(request.session["CW_list"], CW_start)
+        print('request.session["ATP_NTA_row"]')
+        print(request.session["ATP_NTA_row"])
+        print(i)
+        ATP_NTA = getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,cw_list=cw_list_origin, valuelist=request.session["ATP_NTA_row"])
+        print(i)
+        print(ATP_NTA)
+        ATP_NTA = ATP_NTA[0]
+
+        print("-------------")
+        print("in view.config: ATP_NTA = "+str(ATP_NTA))
+        print("-------------")
+
+        customerList = request.session["customerList"]
+        username = request.session["username"]
+        currentPage = 'createTask'
+
+        #get Scenario list
+        '''print(pid)
+        print(plantATP)
+        print(ATP_NTA)
+        print(excelTable)
+        print(customerList)
+        print(username)
+        print(currentPage) '''
 
 
-
-            print("-------------")
-            print("in view.config: ATP_NTA = "+str(ATP_NTA))
-            print("-------------")
-
-            customerList = request.session["customerList"]
-            username = request.session["username"]
-            currentPage = 'createTask'
-
-            #get Scenario list
-            '''print(pid)
-            print(plantATP)
-            print(ATP_NTA)
-            print(excelTable)
-            print(customerList)
-            print(username)
-            print(currentPage) '''
-        except :
-            print("No file detect!")
-            return config(request)
+        #except :
+        #    print("No file detect!")
+        #    return config(request)
         '''    
         def reorder(CW_start,CW_end,rowName):
             
@@ -328,24 +365,6 @@ def run(request):
                     'customerList_forTemplate':request.session["customerList"],
                     #'customerList':json.dumps(customerList),
                     'datalist': dl})
-
-#k考虑是否允许出现end 比 start大的情况
-def getRealValuelistByCW(cw_start, cw_end, cw_list, valuelist):
-    #print("Start of getRealValuelistByCW")
-    #print("cw_start=" + str(cw_start) + "cw_end=" + str(cw_end))
-    #print("valuelist= " + str(valuelist)  )
-    l = valuelist.__len__()
-    #print("l =  " + str(l)  )
-    index_start = -1
-    index_end = -1
-    for index in range(l):
-        print(cw_list[index])
-        if cw_list[index] == cw_start :
-            index_start = index;
-        if cw_list[index] == cw_end :
-            index_end = index;
-    #print("end of getRealValuelistByCW")
-    return valuelist[index_start: index_end +1]
 
 #return customerList
 def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> request.file["XXXX"]
@@ -607,9 +626,9 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
                                           name='Var_Allocation_Stock')
 
     var_BufferStock = reCAST.addVars(len(atp), vtype=GRB.INTEGER, name='Var_BufferStock')
-    #print("@@@@@@var_BufferStock@@@@@@")
-    #print(len(atp))
-    #print(var_BufferStock)
+    print("@@@@@@var_BufferStock@@@@@@")
+    print(len(atp))
+    print(var_BufferStock)
     var_z = reCAST.addVars(len(atp), vtype=GRB.BINARY, name='useStockOrNot')
 
     # var_Allocation_ATP = reCAST.addVars(len(orders), len(atp), len(atp),lb = 0,
@@ -986,15 +1005,25 @@ def details(request):
     return render(request, 'details.html', {'task': task})
 
 def export(request):
+    customer_list = request.session['scenarioList_objList'][0]['customerList'];
     basedir = os.path.dirname(__file__)
     filename = 'Allocation_Template.xlsx'
     path = basedir ;
     path += "/static/excel/";
     #path += "/static/excel/";
-    targetFilePath = Parser.parse2_export_file(path, filename)
+
+    print('request.session["date_list"]'+str(request.session["date_list"]))
+
+    targetFilePath = Parser.parse2_export_file(path=path, filename=filename,
+                                               customer_list = customer_list,
+                                               customername_list = Scenario.customerNameList,
+                                               len_cw = request.session['CW_len'],
+                                               cw_start = request.session['CW_start'],
+                                               product_SP = request.session['pid'],
+                                               date_list = request.session["date_list"])
 
     # Test
-    print(targetFilePath)
+    print(targetFilePath);
 
     file = open(targetFilePath, 'rb')
     response = FileResponse(file)
@@ -1156,6 +1185,7 @@ def getActiveCode(request):
 
 def update(request):
     if request.method == "GET":
+        request.GET.get("s")
         taskDict = getTaskAtSession(request)
         # customerList = run_gurobi(abs_filename=request.session["filename_upload"],
         scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
@@ -1192,7 +1222,106 @@ def update(request):
                                                'customerList': json.dumps(request.session["customerList"]),
                                                'customerList_forTemplate': request.session["customerList"] })
 
-
 def delete(request):
     return None
 
+#must every one element at the list is unique.
+# if not found the element at the, then return None as error.
+def get_index_atSelectedCWList( cw_list , cw_value ):
+    index = 0;
+    for item in cw_list:
+        if cw_value == item:
+            return index;
+        index += 1;
+    return None;
+
+# if return None, it means user's inpout CW is not at the list.
+# else return the selected segment of user's input.
+def generateCWList(cw_list_origin, cw_start, cw_end):
+    index = 0;
+    start_index = None;
+    end_index   = None;
+    max_index = len(cw_list_origin) - 1;
+    for i in cw_list_origin:
+        if   i == cw_start:
+            start_index = index;
+            print("start_index="+str(index))
+        #it must get cw_start firstly
+        elif (cw_start!= None) and i == cw_end:
+            end_index = index;
+            print("end_index=" + str(index))
+        index+=1;
+    # if index has be founded
+    if end_index != None and start_index != None :
+        return cw_list_origin[start_index: end_index+1];
+    #User's input value are out of range.
+    # after one pass traverse of the list, if CW_end > max(cw_list), or
+    # CW_start < the fist_beginning min(cw_list), then throw an error.
+    elif cw_end > cw_list_origin[max_index] or cw_start < cw_list_origin[0]:
+        return None;
+    # Unknow Error.
+    else:
+        return None;
+def get_slelectedCW_len(cw_list):
+    return  cw_list.__len__();
+
+#get the CW length of a unselected list array/list.
+def get_cw_len(cw_list_origin, cw_start, cw_end):
+    count = 0;
+    start = False ;
+    for i in cw_list_origin:
+        if start:
+            count+=1;
+            if i == cw_end:
+                start = False;
+                break;
+        else:
+            if i == cw_start:
+                start = True;
+                count+=1;
+    return count;
+
+
+#k考虑是否允许出现end 比 start大的情况
+#NOTE: cw_list here must be original CW list.
+#def getRealValuelistBySelectedCW(cw_start, cw_end, cw_list, valuelist):
+
+
+def getRealValuelistBySelectedCW(cw_start, cw_end, cw_list, valuelist):
+    #print("Start of getRealValuelistByCW")
+    #print("cw_start=" + str(cw_start) + "cw_end=" + str(cw_end))
+    #print("valuelist= " + str(valuelist)  )
+    l = cw_list.__len__()
+    #print("l =  " + str(l)  )
+    index_start = -1
+    index_end = -1
+    print("--------------")
+    for index in range(l):
+        print(cw_list[index])
+        if cw_list[index] == cw_start :
+            index_start = index;
+        if cw_list[index] == cw_end :
+            index_end = index;
+    #print("end of getRealValuelistByCW")
+    return valuelist[index_start: index_end +1]
+
+
+#k考虑是否允许出现end 比 start大的情况
+#NOTE: cw_list here must be original CW list.
+def getRealValuelistByCW(cw_start, cw_end, cw_list, valuelist):
+    #print("Start of getRealValuelistByCW")
+    #print("cw_start=" + str(cw_start) + "cw_end=" + str(cw_end))
+    #print("valuelist= " + str(valuelist)  )
+    l = cw_list.__len__()
+    #print("l =  " + str(l)  )
+    index_start = -1
+    index_end = -1
+    print("--------------")
+    for index in range(l):
+        print(cw_list[index])
+        if cw_list[index] == cw_start :
+            index_start = index;
+        if cw_list[index] == cw_end :
+            index_end = index;
+    #print("end of getRealValuelistByCW")
+    return valuelist[index_start: index_end +1]
