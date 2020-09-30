@@ -670,7 +670,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
 
     ##### This constraint can make the model infeasible when sum(atp) - sum(reserve_Buffer) is bigger than
     ##### all orders which limit the value of allocation from ATP AQ
-    print('The Value for Checking infeasibility = 'sum(atp) - sum(reserve_Buffer))
+    print('The Value for Checking infeasibility = ', sum(atp) - sum(reserve_Buffer))
 
     # reCAST.addConstrs((var_Allocation_Stock.sum(i,'*',t) - var_Allocation_Stock.sum(i,r,'*') == 0
     #                   for i in range(len(orders)) for t in range(len(atp)) for r in range(len(atp))),
