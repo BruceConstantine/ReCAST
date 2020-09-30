@@ -646,8 +646,10 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
                        for i in range(len(orders)) for r in range(len(atp))), name='cons_orders');
 
     # here I should read the value of buffer stock in time 0 from the excel file - Solved
-    reCAST.addConstrs((var_BufferStock[t] == intial_Buffer_Value
-                       for t in range(1)), name='con_Buffer_Initial');
+    #reCAST.addConstrs((var_BufferStock[t] == intial_Buffer_Value
+    #                   for t in range(1)), name='con_Buffer_Initial');
+    #new constraint
+    reCAST.addConstr((var_BufferStock[0] == intial_Buffer_Value), name='con_Buffer_Initial');
 
     reCAST.addConstrs((var_BufferStock[t] - var_BufferStock[t - 1] +
                        var_Allocation_ATP.sum('*', '*', t - 1) +
@@ -668,7 +670,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
 
     ##### This constraint can make the model infeasible when sum(atp) - sum(reserve_Buffer) is bigger than
     ##### all orders which limit the value of allocation from ATP AQ
-    print(sum(atp) - sum(reserve_Buffer))
+    print('The Value for Checking infeasibility = 'sum(atp) - sum(reserve_Buffer))
 
     # reCAST.addConstrs((var_Allocation_Stock.sum(i,'*',t) - var_Allocation_Stock.sum(i,r,'*') == 0
     #                   for i in range(len(orders)) for t in range(len(atp)) for r in range(len(atp))),
@@ -719,6 +721,10 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
 
         reCAST.optimize()
 
+        #Check for infeasibility
+        if reCAST.Status == 3 or 4:
+            print('The inputs are WRONG!\nYou should modify inputs and re-run ReCAST')
+            #@Zhikang: If this prints, the model is infeasible and we can pup up an alarm page
         #     Exteraction of allocated quantities from ATP in format of dataframe
 
         rows_ATP = customers.copy()
