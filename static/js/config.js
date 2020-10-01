@@ -2,7 +2,7 @@
 //data = [],  container = document.getElementById('BS_table'), hot;
 var table_BS, hot_allow;
 
-var CW1, CW2;
+
 function setBSTableContent(rowname, value) {
     var row;
     if (rowname == 'MBS'){
@@ -10,15 +10,15 @@ function setBSTableContent(rowname, value) {
     } else if (rowname == 'RBS') {
         row = 1;
     }
-    for (var col=0; col<=CW2-CW1; col++ ){
+    for (var col=0; col<CW_len; col++ ){
         table_BS.setDataAtCell(row,col,value);
     }
 }
 function cleanBSTable() {
-    for (var col=0; col<=CW2-CW1; col++ ){
+    for (var col=0; col<CW_len; col++ ){
         table_BS.setDataAtCell(0,col,"");
     }
-    for (var col=0; col<=CW2-CW1; col++ ){
+    for (var col=0; col<CW_len; col++ ){
         table_BS.setDataAtCell(1,col,"");
     }
 }
@@ -34,14 +34,17 @@ function BS_apply_callback(boxid) {
 
 
 function getCWsHeader(cw1, cw2){
-    CW1 = cw1; CW2 = cw2;
-    var tableHeader = [''];
-    for(var i=cw1; i<=cw2; i++){
-        tableHeader.push('CW '+i);
+    return CW_list;
+}
+
+function getBSHeader_col_by_CWlist(cw_list_in) {
+    var l = cw_list_in.length;
+    var tableHeader = [];
+    for(var i = 0; i < l; i++) {
+        tableHeader.push('CW ' + cw_list_in[i]);
     }
     return tableHeader;
 }
-
 function getBSHeader_col(cw1,cw2) {
     CW1 = cw1; CW2 = cw2;
     var tableHeader = [];
@@ -115,22 +118,27 @@ function pageSubmit(btn) {
     //btn.click()
 }
 
-function initBStable_content(cw_start, cw_end) {
+//function initBStable_content(cw_start, cw_end) {}
+
+function initBStable_content(cw_list) {
     tableRow_MBS = [];
     tableRow_RBS = [];
-    for(var i=cw_start; i<=cw_end; i++){
+    var l = cw_list.length;
+    for(var i=0; i<l; i++){
         tableRow_MBS.push('');
         tableRow_RBS.push('');
     }
     return  [tableRow_MBS,tableRow_RBS];
 }
 
-function getBStable_all(cw1, cw2){
-    CW1 = cw1; CW2 = cw2;
-    var tableHeader = getCWsHeader(cw1,cw2);
+//function getBStable_all(cw1, cw2){}
+
+function getBStable_all(cw_list_in){
+    var tableHeader = cw_list_in;
     var tableRow_MBS = ['Min. Buffer Stock'];
     var tableRow_RBS = ['Reserve Buffer Stock'];
-    for(var i=cw1; i<=cw2; i++){
+    var l = cw_list_in.length;
+    for(var i = 0 ; i < l; i++){
         tableRow_MBS.push('');
         tableRow_RBS.push('');
     }
@@ -156,19 +164,19 @@ function getAUStable(cw1, cw2, customerList){
                 for(var i=cw1; i<=cw2; i++){
                     aRow.push('Yes');
                 }
-                return aRow
+                return aRow;
             }())
-        )
+        );
         })
     return tableRows;
 }
 
 
-function getAUStable_content( cw_start, cw_end, customerList) {
-    var rows = customerList.length, cols =  cw_end - cw_start, content = [];
+function getAUStable_content( CW_list, customerList) {
+    var rows = customerList.length, cols =  CW_list.length, content = [];
     for ( var i = 0; i < rows; i++){
         var content_row = [];
-        for (var j = 0; j <= cols ; j++){
+        for (var j = 0; j < cols ; j++){
             content_row.push('yes');
         }
         content.push(content_row);
@@ -176,34 +184,50 @@ function getAUStable_content( cw_start, cw_end, customerList) {
     return content;
 }
 
-function getRFHeader_col(cw1, cw2,) {
-        list = getCWsHeader(cw1, cw2)
+/* function here standing-by for forture calling
+function getRFHeader_col(CW_list_in) {
+        var list = CW_list_in
         list.shift(1)
         return list;
 }
+*/
 
-function getRFtable_content(cw1, cw2) {
+//@pre-condition: plantATP must represents the time horizon within 'cw_list';
+function getRFtable_content(cw_list_in) {
     //getPlantATP
-    var content_row_plantATP = [78000,62000,4500,130500,71000,80000,80000,165000,160500,161500,88500,80000];
+    var content_row_plantATP = plantATP; //test data :[78000,62000,4500,130500,71000,80000,80000,165000,160500,161500,88500,80000];
     var content_row_VulATP = [];
     var content_row_PLG = [];
     //handle relation between PLG and VulATP
     var columns = [];
-    for (var i=cw1; i <=cw2; i++) {
+    var l = cw_list_in.length;
+
+    for (var i = 0; i < l; i++) {
         columns.push({
-            plantATP :  content_row_plantATP[i-cw1],
+            plantATP :  content_row_plantATP[i],
             VulATP : true,
             PLG : 0
-        })
+        });
     }
     return columns;
+}
+function triggerRFtable(e){
+    RFtable = document.getElementById('RFtable');
+     /*RFtable.hidden = ! RFtable.hidden ;*/
+    var display = RFtable.style.display;
+    if (display == 'none'){
+         RFtable.style.display = 'block';
+    } else {
+         RFtable.style.display = 'none';
+    }
+
 }
 
 BStableConfig  = {
     // data: JSON.parse(JSON.stringify(getBStable_content(12,23))),
-    data: initBStable_content(CW_start,CW_end),
+    data: initBStable_content(CW_list),
     licenseKey: 'ab3e4-1bee8-ed01c-4d94b-08cfe',
-    colHeaders: getBSHeader_col(CW_start,CW_end),
+    colHeaders: getBSHeader_col_by_CWlist(CW_list),
     //The number of 'rowHeaders'here must be consistent with that of 'data' property
     rowHeaders: getBSHeader_row(),
     //stretchH:"none",
@@ -217,9 +241,9 @@ BStableConfig  = {
     }
 }
 AllowTableConfig={
-    data: getAUStable_content(CW_start,CW_end,customerList_name) ,
+    data: getAUStable_content(CW_list,customerList_name) ,
     licenseKey: 'ab3e4-1bee8-ed01c-4d94b-08cfe',
-    colHeaders: getBSHeader_col(CW_start,CW_end),
+    colHeaders: getBSHeader_col_by_CWlist(CW_list),
     // Refactoring rowHeaders here.
     rowHeaders: customerList_name,//['A_4006047_WF00','B_WF00','C_WF00'],
     //stretchH:"none",
@@ -268,20 +292,20 @@ window.onload = function () {
     //BS_table
 	var hot = new Handsontable( document.getElementById('BS_table'), BStableConfig );
     table_BS = hot
-    console.log(hot)
+    console.log(table_BS)
     //hot.container.onmousedown = function(){alert('down')}
     //hot.getDataAtRow(0)
 
     hot_allow = new Handsontable(document.getElementById('allow_table'), AllowTableConfig);
 
-	var hot3 = new Handsontable(container3 = document.getElementById('RFtable'), {
-        data: getRFtable_content(CW_start,CW_end), //JSON.parse(JSON.stringify(getRFtable_content(CW_start,CW_end))),
+	var hot3 = new Handsontable( document.getElementById('RFtable'), {
+        data: getRFtable_content(CW_list), //JSON.parse(JSON.stringify(getRFtable_content(CW_start,CW_end))),
         // multiColumnSorting: "row",
-        rowHeaderWidth: 80,
+        rowHeaderWidth: 100,
         colWidths:180,
         autoColumnSize:true,
         colHeaders:  getRFHeader_row(),
-        rowHeaders:  getRFHeader_col(CW_start,CW_end),
+        rowHeaders:  getBSHeader_col_by_CWlist(CW_list),
         licenseKey:  'ab3e4-1bee8-ed01c-4d94b-08cfe',
         contextMenu: false,//使用菜单
         columnSorting: false,

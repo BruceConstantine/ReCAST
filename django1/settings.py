@@ -136,6 +136,13 @@ print(BASE_DIR)
 print(os.path.join(BASE_DIR, '/static/'))
 #print(STATIC_ROOT)
 
+CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache', #缓存到本地内存中
+        'TIMEOUT': 100,
+    }
+}
+
 SESSION_CACHE_ALIAS = 'default'  # Cache to store session data if using the cache session backend.
 SESSION_COOKIE_NAME = 'sessionid'  # Cookie name. This can be whatever you want.
 SESSION_COOKIE_AGE = 60 * 5  # Age of cookie, in seconds (default: 2 weeks). Now is 5 minutes.

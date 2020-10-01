@@ -18,8 +18,10 @@
       var aaa = JSON.parse('{{ datalist|safe }}');
       alert(aaa);
 * */
-    var CW_start = {{ CW_start|safe }}
-    var CW_end =   {{ CW_end |safe }}
+    var CW_list   = {{ CW_list | safe }}
+    var CW_len   = CW_list.length
+    var CW_start = CW_list[0]
+    var CW_end =   CW_list[CW_len-1]
     var plantATP =  eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
     var ATP_NTA  =  ('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
     var customerNameList  = {{ customerNameList |safe }}

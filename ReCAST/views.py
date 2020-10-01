@@ -27,6 +27,10 @@ import numpy as np
 def back_previews_page_html_str():
     return '<html><head><script>history.go(-1)</script></head><body></body></html>'
 
+def back_previews_page_html_str_with_alert(alert_str):
+    return '<html><head><script>alert("'+alert_str+'");history.go(-1);</script></head><body></body></html>'
+
+
 def getRouter(url_fullpath):
     parts = url_fullpath.split('/')
     i_upbound = len(parts) - 1
@@ -174,7 +178,6 @@ def downloadManual(request):
     response['Content-Disposition'] = 'attachment;filename="ReCAST Use Manual.pdf"'
     return response
 
-
 def config(request):
     #task = getTaskAtSession(request)
     #TODO: task here should not be a session, which should be a task--- that need to be updated at upload function
@@ -200,8 +203,7 @@ def config(request):
         request.session['CW_end']  = CW_end
 
         # NOTE: update date_list
-        request.session["date_list"] = getRealValuelistByCW(CW_start, CW_end, cw_list_origin,
-                                                            request.session["date_list"])
+        request.session["date_list"] = getRealValuelistByCW(CW_start, CW_end, cw_list_origin,  request.session["date_list"])
         print("request.session['date_list']"+str(request.session["date_list"]))
 
         #update PlantATP once CW start\end are given
@@ -210,15 +212,20 @@ def config(request):
 
         #record the original CMAD for each customer
         origin_CMAD_order = []
+        CMAD_order = []
         customer_unparsed_dictlist = request.session["customerList"]
         for customerDict in customer_unparsed_dictlist:
-            origin_CMAD_order.append(getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,
-                                                             cw_list=cw_list_origin,
-                                                             valuelist=customerDict["CMAD"]))
-
+            selectedCMADList = getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,
+                                                             cw_list_origin=cw_list_origin,
+                                                             valuelist=customerDict["CMAD"]);
+            #TODO: bug here
+            origin_CMAD_order.append(customerDict["CMAD"]);
+            customerDict["CMAD"] = selectedCMADList;
+            CMAD_order.append(selectedCMADList);
         request.session["origin_CMAD_order"] = origin_CMAD_order
+        request.session["CMAD_order"] = CMAD_order
         print(' request.session["origin_CMAD_order"]='+str(request.session["origin_CMAD_order"]))
-
+        print(request.session["customerList"])
 
         for stockWeight in SW_input_list:
             scenarioList.append([stockWeight,CW_input_list[arr_index]])
@@ -243,7 +250,8 @@ def config(request):
         print('request.session["ATP_NTA_row"]')
         print(request.session["ATP_NTA_row"])
         print(i)
-        ATP_NTA = getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,cw_list=cw_list_origin, valuelist=request.session["ATP_NTA_row"])
+        ATP_NTA = getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,cw_list_origin=cw_list_origin, valuelist=request.session["ATP_NTA_row"])
+        #ATP_NTA = getRealValuelistBySelectedCW(cw_start=CW_start, cw_end=CW_end,cw_list=cw_list_origin, valuelist=request.session["ATP_NTA_row"])
         print(i)
         print(ATP_NTA)
         ATP_NTA = ATP_NTA[0]
@@ -305,8 +313,7 @@ def config(request):
         print("ATP_NTA: "+str(taskDict["ATP_NTA"])) # [0],
         print("customerList: "+str(request.session["customerList"])) # [0],
     return render(request, 'config.html',
-                    {'CW_start':taskDict['CW_start'],
-                    'CW_end'   :taskDict['CW_end'],
+                    {'CW_list':request.session['CW_list'],
                     'plantATP' :json.dumps(taskDict["plantATP"]),
                     'ATP_NTA'  :json.dumps(taskDict["ATP_NTA"]), #[0],
                     'customerList':json.dumps(request.session["customerList"])}) #JSONfy/serialization
@@ -332,16 +339,21 @@ def run(request):
     taskDict = getTaskAtSession(request)
     #customerList = run_gurobi(abs_filename=request.session["filename_upload"],
     scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
-                              CW_start=taskDict['CW_start'],CW_end=taskDict['CW_end'],CW_start_date=None,CW_end_date=None,
-                              packingUnit_in=taskDict["packingUnit"],
-                              MBS_in=taskDict["MBS"],RBS_in=taskDict["RBS"],
-                              plantATP_in=taskDict["plantATP"],
-                              ComfirmedOrder_in=request.session["customerList"],
-                              bin_usefrom_stock_in=taskDict["bin_use_from_stock"],
-                              ATP_NTA_in=int(taskDict["ATP_NTA"]),
-                              scenarioList_in=taskDict["scenarioList"],
-                              maxDelay_in=taskDict["maxDelay"]
+                                  CW_start=taskDict['CW_start'],
+                                  CW_end=taskDict['CW_end'],
+                                  CW_start_date=None,CW_end_date=None,
+                                  packingUnit_in=taskDict["packingUnit"],
+                                  MBS_in=taskDict["MBS"],RBS_in=taskDict["RBS"],
+                                  plantATP_in=taskDict["plantATP"],
+                                  ComfirmedOrder_in=request.session["customerList"],
+                                  #ComfirmedOrder_in=request.session["origin_CMAD_order"],
+                                  bin_usefrom_stock_in=taskDict["bin_use_from_stock"],
+                                  ATP_NTA_in=int(taskDict["ATP_NTA"]),
+                                  scenarioList_in=taskDict["scenarioList"],
+                                  maxDelay_in=taskDict["maxDelay"]
                               )
+    if scenarioList_objList == None:
+        return HttpResponse(back_previews_page_html_str_with_alert("your input is not correct! Please re-configratue your input parameters!"));
     request.session["scenarioList_objList"] = scenarioList_objList
     '''
     print("___________request.session['customerList'] ___________")
@@ -353,8 +365,8 @@ def run(request):
     print("_________type_____________")
     print( type( json.dumps(request.session["customerList"]) ) )
     '''
-    return render(request, 'result.html',{'CW_start':taskDict['CW_start'],
-                    'CW_end':taskDict['CW_end'],
+    return render(request, 'result.html',{
+                    'CW_list':request.session['CW_list'],
                     'plantATP':json.dumps(taskDict["plantATP"]),
                     'ATP_NTA':json.dumps(taskDict["ATP_NTA"]), #a row rather than ATP_NTA vlaue,
                     'origin_CMAD_order': request.session["origin_CMAD_order"],
@@ -448,22 +460,34 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     #print("----------------------")
     #confirmedOrder = {"customer1": df_list[2], "customer2": df_list[3]}
     len_CW= int(CW_end)-int(CW_start)+1;
-    print("!!!!!!!!!!!!!!!!!!!!CW_end,CW_start!!!!!!!!!!!!!!!!!!!");
-    print(CW_end,CW_start);
+    print("!!!!!!!!!!!!!!!!!!!! CW_start  CW_end !!!!!!!!!!!!!!!!!!!");
+    print( CW_start, CW_end );
     confirmedOrder = ComfirmedOrder_in
+    #confirmedOrder = [];
     for customerDict in confirmedOrder:
-        customerDict['CMAD'] = list(map(int, customerDict['CMAD']))[CW_start-1:CW_end]
-        #print('CMAD')
-        #print(customerDict['CMAD'])
+        customerDict['CMAD'] = list(map(int, customerDict['CMAD']))
+        #customerDict['CMAD'] = list(map(int, customerDict['CMAD']))[CW_start-1:CW_end]
+        #AcustomerCMAD = list(map(int, AcustomerCMAD));
+        #confirmedOrder.append(AcustomerCMAD);
+        #for item in customerDict :
+        #     if type(item) == str:
+        #         print("item is a 'str'")
+        #         print("'"+item+"'")
+        #customerDict['CMAD'] = list(map(int, customerDict['CMAD']))
+        #print('customerDict["CMAD]"')
+        #print(customerDict)
         #print(len(customerDict['CMAD']))
         #print()
-
     #print("----------------------")
     #plantATP = df_list[0]
-    plantATP = list(map(int,plantATP_in))[CW_start-1:CW_end]
-    #print("plantATP")
-    #print(plantATP)
-    #print(len(plantATP))
+    print("plantATP_in")
+    print(plantATP_in)
+    plantATP = list(map(int,plantATP_in))
+    #if plantATP is the whole row, which is not been selected, then use the following line:
+    #plantATP = list(map(int,plantATP_in))[CW_start-1:CW_end]
+    print("plantATP")
+    print(plantATP)
+    print(len(plantATP))
     print()
 
     #plantATP = plantATP_in
@@ -642,6 +666,9 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
 
     # var_z = reCAST.addVars(len(atp), vtype = GRB.BINARY , name = 'Var_UseStockOrNot')
 
+    #Test here for output orders details
+    #print("orders"+str(orders))
+
     reCAST.addConstrs((var_Allocation_ATP.sum(i, r, '*') + var_Allocation_Stock.sum(i, r, '*') <= orders[i][r]
                        for i in range(len(orders)) for r in range(len(atp))), name='cons_orders');
 
@@ -670,7 +697,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
 
     ##### This constraint can make the model infeasible when sum(atp) - sum(reserve_Buffer) is bigger than
     ##### all orders which limit the value of allocation from ATP AQ
-    print('The Value for Checking infeasibility = ', sum(atp) - sum(reserve_Buffer))
+    print('The Value for Checking infeasibility = '+str(sum(atp) - sum(reserve_Buffer)))
 
     # reCAST.addConstrs((var_Allocation_Stock.sum(i,'*',t) - var_Allocation_Stock.sum(i,r,'*') == 0
     #                   for i in range(len(orders)) for t in range(len(atp)) for r in range(len(atp))),
@@ -707,7 +734,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     reCAST.Params.IntFeasTol = 1e-9  # -5 -9
     reCAST.Params.FeasibilityTol = 1e-9  # -6 -9
     reCAST.Params.OptimalityTol = 1e-9
-
+    reCAST.Params.TimeLimit = 20
 
     len_scenarioList = len(scenarioList)
 
@@ -722,11 +749,12 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
         reCAST.optimize()
 
         #Check for infeasibility
-        if reCAST.Status == 3 or 4:
+        if reCAST.Status == 4:# or 3:
             print('The inputs are WRONG!\nYou should modify inputs and re-run ReCAST')
-            #@Zhikang: If this prints, the model is infeasible and we can pup up an alarm page
-        #     Exteraction of allocated quantities from ATP in format of dataframe
+            #TODO: If this prints, the model is infeasible and we can pup up an alarm page
+            return None;
 
+        #     Exteraction of allocated quantities from ATP in format of dataframe
         rows_ATP = customers.copy()
         columns_ATP = df_list[1].copy() #date
         allocation_ATP_Plan = pd.DataFrame(columns=columns_ATP, index=rows_ATP, data=0.0)
@@ -1287,10 +1315,13 @@ def get_cw_len(cw_list_origin, cw_start, cw_end):
                 count+=1;
     return count;
 
+#def getATP_NAT(ATP):
+
 
 #k考虑是否允许出现end 比 start大的情况
 #NOTE: cw_list here must be original CW list.
 #def getRealValuelistBySelectedCW(cw_start, cw_end, cw_list, valuelist):
+
 
 
 def getRealValuelistBySelectedCW(cw_start, cw_end, cw_list, valuelist):
@@ -1314,20 +1345,20 @@ def getRealValuelistBySelectedCW(cw_start, cw_end, cw_list, valuelist):
 
 #k考虑是否允许出现end 比 start大的情况
 #NOTE: cw_list here must be original CW list.
-def getRealValuelistByCW(cw_start, cw_end, cw_list, valuelist):
+def getRealValuelistByCW(cw_start, cw_end, cw_list_origin, valuelist):
     #print("Start of getRealValuelistByCW")
     #print("cw_start=" + str(cw_start) + "cw_end=" + str(cw_end))
     #print("valuelist= " + str(valuelist)  )
-    l = cw_list.__len__()
+    l = cw_list_origin.__len__()
     #print("l =  " + str(l)  )
     index_start = -1
     index_end = -1
     print("--------------")
     for index in range(l):
-        print(cw_list[index])
-        if cw_list[index] == cw_start :
+        if cw_list_origin[index] == cw_start :
             index_start = index;
-        if cw_list[index] == cw_end :
+        if cw_list_origin[index] == cw_end :
             index_end = index;
     #print("end of getRealValuelistByCW")
+    #print(valuelist[index_start: index_end +1])
     return valuelist[index_start: index_end +1]

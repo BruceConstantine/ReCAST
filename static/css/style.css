@@ -1,8 +1,121 @@
+/*define the font format, its font-family actually is Source Sans 3 ranther Source San Pro*/
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 200;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-ExtraLight.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-ExtraLight.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 200;
+    font-style: italic;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-ExtraLightIt.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-ExtraLightIt.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 300;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-Light.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-Light.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 300;
+    font-style: italic;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-LightIt.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-LightIt.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 400;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-Regular.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-Regular.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 400;
+    font-style: italic;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-It.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-It.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 600;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-Semibold.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-Semibold.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 600;
+    font-style: italic;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-SemiboldIt.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-SemiboldIt.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 700;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-Bold.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-Bold.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 700;
+    font-style: italic;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-BoldIt.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-BoldIt.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 900;
+    font-style: normal;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-Black.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-Black.otf.woff') format('woff');
+}
+
+@font-face{
+    font-family: 'Source Sans Pro';
+    font-weight: 900;
+    font-style: italic;
+    font-stretch: normal;
+    src: url('font/WOFF2/TTF/SourceSans3-BlackIt.ttf.woff2') format('woff2'),
+         url('font/WOFF/OTF/SourceSans3-BlackIt.otf.woff') format('woff');
+}
+
+*{
+  font-family: 'Source Sans Pro' ;
+}
+
 body {
   /*border: #999999 1px solid;*/
   max-width: 90%;
   margin-left: 5%;
-  font-family: 'Arial Negreta', 'Arial Normal', 'Arial', sans-serif;
+  font-family: 'Source Sans Pro' ;
   font-weight: 700;
   font-style: normal;
   text-align: center;
@@ -106,7 +219,7 @@ footer {
     width: 40%;
     font-size: 14px;
     font-weight: 700;
-    font-family: "Microsoft soft";
+    font-family: "Source Sans Pro";
 }
 .regist-inputline{
   width: 50%;
@@ -127,7 +240,7 @@ footer {
   font-weight: 600;
 }
 .regist-prompt{
-  font-family: "Tahoma", "Geneva", sans-serif;
+  font-family: "Source Sans Pro";
   color: #546466;
   font-size: 19px;
   letter-spacing: 1.4pt;
@@ -136,12 +249,12 @@ footer {
 }
 #login_panel{
   position: fixed;
-  left: 32%;
+  left: 29%;
   top: 16%;
   width: 40%;
-  height: 59%;
-  max-width: 500px;
-  max-height: 550px;
+  height: 68%;
+  /*max-width: 500px;
+  max-height: 550px;*/
   background-color: white; /*whitesmoke*/
   padding: 20px;
 }
@@ -271,7 +384,7 @@ div p{
   border:1px solid #000000;
   display:inline-block;
   cursor:pointer;
-  font-family:Arial;
+  font-family: "Source Sans Pro";
   font-size:14px;
   color:#4e555b;
   font-weight:bold;
@@ -284,9 +397,10 @@ div p{
   display: inline-block;
   width: 300px;
   height: 200px;
-  background-color: #4B7902;
-  font-size: 20px;
-  border: none;
+  /*background-color: #4B7902;*/
+  background-color: #644f54;
+  font-size: 36px;
+  border: solid 4px #5ca290;
   border-radius: 58px;
   -moz-box-shadow: none;
   -webkit-box-shadow: none;
@@ -295,14 +409,17 @@ div p{
 /*块级元素div下的行内元素a满足下面属性*/
 .index_module_opt > a {
   display: inline-block;
-  margin-top: 90px; /* Only pixel can be applied here*/
+  margin-top: 68px; /* Only pixel can be applied here*/
   color: #F2F2F2;
 }
 .index_module_opt:hover{
-  background-color:#80C613;
+  border: solid 4px #644f54;
+  background-color:#769F3B;
+  /*background-color:#80C613;*/
 }
 .index_module_opt:hover > a{
-  color: #006837;
+  /*color: #006837;*/
+  color: #812161;
 }
 .btnBar_index > a{
   text-decoration: underline;
@@ -332,7 +449,7 @@ form > div{
    overflow: scroll;
 }
 #input_filename{
-  font-family: "Lucida Blackletter", eufm10, blackletter;
+  font-family: "Source Sans Pro", eufm10, blackletter;
   font-feature-settings: normal ;
   color: darkslategray;
 }
@@ -353,12 +470,14 @@ button {
   /*max-width: 220px;*/
   margin-left:  20px;
   margin-right: 20px;
-  background-color:#2f6627;
+  /* background-color:#2f6627;*//*Old style*/
+  background-color:#644f54;
   border-radius:15px;
-  border:1px solid #18ab29;
+  /* border:1px solid #18ab29;*//*Old style*/
+  border:3px solid #5ea290;
   display:inline-block;
   cursor:pointer;
-  font-family:Arial;
+  font-family:"Source Sans Pro";
   font-size:14px;
   color:#f0f0f0;
   font-weight:bold;
@@ -374,8 +493,10 @@ button {
 	color:#f0f0f0;
 }
 .greenBtn:hover > a {
-	color:#F2F2F2 ;
-	background-color:#5cbf2a;
+	color:#812161 ;
+	background-color:#769f3b;
+    /* color:#F2F2F2;*//*Old style*/
+    /* background-color:#5cbf2a;*//*Old style*/
 }
 .greenBtn:active {
 	position:relative;
@@ -387,12 +508,12 @@ button {
   /*max-width: 220px;*/
   margin-left:  10px;
   margin-right: 10px;
-  background-color:#7EC481;
+  background-color:#644f54;
   border-radius:17px;
-  border:1px solid #0c5460;
+  border:2px solid #5ea290;
   display:inline-block;
   cursor:pointer;
-  font-family:Arial;
+  font-family:"Source Sans Pro";
   font-size:14px;
   color:whitesmoke;
   font-weight:bold;
@@ -401,7 +522,7 @@ button {
   text-shadow:0px -1px 9px #2f6627;
 }
 .greenBtn-small:hover {
-	background-color:#2f6627;
+	background-color:#769F3B;
 	color:#f0f0f0;
 }
 .greenBtn-small > a{
@@ -409,7 +530,7 @@ button {
 }
 .greenBtn-small:hover > a {
 	color:#F2F2F2 ;
-	background-color:#5cbf2a;
+	background-color:#812161;
 }
 .greenBtn-small:active {
 	position:relative;
@@ -426,7 +547,7 @@ button {
   display: inline-block;
 }
 .input_input_note{
-  font-family: "Lucida Blackletter", eufm10, blackletter;
+  font-family: "Source Sans Pro", eufm10, blackletter;
   font-feature-settings: normal ;
   font-size: medium;
   line-height: 2.5em;
@@ -539,7 +660,7 @@ hr{
     border-radius: 2px;
     border: 1px solid rgb(1, 1, 1);
     font-size: 16px;
-    font-family: MicrosoftYaHei;
+    font-family: "Source Sans Pro";
     color: rgb(61, 61, 61);
     cursor: pointer;
   }

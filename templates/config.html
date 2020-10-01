@@ -6,8 +6,10 @@
 
 {% block script_header %}
 <script>
-    var CW_start = {{ CW_start|safe }}
-    var CW_end =   {{ CW_end |safe }}
+    var CW_list   = {{ CW_list | safe }}
+    var CW_len   = CW_list.length
+    var CW_start = CW_list[0]
+    var CW_end =   CW_list[CW_len-1]
     var plantATP =  eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
     var ATP_NTA  =  eval('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
     var customerObjList = eval('{{  customerList }}'.replace(/&quot;/g,"'"))
@@ -45,7 +47,8 @@
 {% endblock script_header %}
 
 {% block pageHeader  %}
-    <h1>Optimal Model Parameters Configuration</h1>
+    <h1>Provide stock limitation, goals, and allowance</h1>
+{#    <h1>Optimal Model Parameters Configuration</h1>#}
 {% endblock pageHeader  %}
 
 
@@ -93,8 +96,9 @@
         </p>
         <br/><br/>
         <p>
-            <h3>Robust Factors <input type="checkbox">Enable </h3>
-            <table id="RFtable">
+            <h3>Robust Factors </h3>
+            <p> <input id="robust_checkbox" type="checkbox" onclick="triggerRFtable()">Enable </p>
+            <table id="RFtable" style="display: none">
             </table>
         </p>
 {% endblock pageContent %}

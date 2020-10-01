@@ -2,31 +2,23 @@ var targetScenario = null;
 
 
 window.onload = function () {
-    function getCWsHeader(cw1, cw2){
-        var tableHeader = [''];
-        for(var i=cw1; i<=cw2; i++){
-            tableHeader.push('CW '+i);
-        }
-        return tableHeader;
-    }
-
-    function getHeader_col(cw1,cw2) {
+    function getBSHeader_col_by_CWlist(cw_list_in) {
+        var l = cw_list_in.length;
         var tableHeader = [];
-        for(var i=cw1; i<=cw2; i++) {
-            tableHeader.push('CW ' + i);
+        for(var i = 0; i < l; i++) {
+            tableHeader.push('CW ' + cw_list_in[i]);
         }
         return tableHeader;
     }
 
     function getHeader_row() {
         //return ['Plant ATP','Customer1 ','Customer 2', 'Customer 3']
-        result = ['Plant ATP']
+        var result = ['Plant ATP'];
         customerNameList.forEach(function (item) {
-            result.push( item )
-        })
+            result.push( item );
+        });
         return result;
     }
-
 
 
     function fillingTable(scenariosCustomerList_CMAD) {
@@ -54,7 +46,7 @@ window.onload = function () {
                 contextMenu: false,//使用菜单
                 readOnly: true,
                 rowHeaders: getHeader_row(),
-                colHeaders: getHeader_col(CW_start,CW_end),
+                colHeaders: getBSHeader_col_by_CWlist(CW_list),
                 rowHeaderWidth: 180,
                 colWidths: 60,
                 width:"100%",
@@ -124,30 +116,8 @@ window.onload = function () {
         };
     }
 
-
-    function createCWList(CW_start,CW_end) {
-        var list = [];
-        for (var i = CW_start; i<=CW_end; i++){
-          list.push(i);
-        }
-        return list;
-    }
-
-    //NOTE: Not Correct method for get the datelist as Excel!
-    function createDateList() {
-        var list = [];
-        for (var i = 10; i < 18; i++) {
-            if (i <= 12) {
-                list.push('2016-' + i + '-01');
-            } else {
-                list.push('2017-' + (i - 12) + '-01');
-            }
-        }
-        return list;
-    }
-
     function createSeriesContent_dictList(scenario_index,customerNameList,customerList_CMAD){
-        result = []
+        var result = []
         var customerNumber = customerNameList.length
         for (var i = 0 ; i < customerNumber; i++) {
             result.push({
@@ -181,7 +151,7 @@ window.onload = function () {
         var xAxis_data = [], content_series = [], legend_list = [];
 
         var config_seriesContent_dictList = createSeriesContent_dictList(scenario_index,customerNameList,customerList_CMAD)
-        var config_xAxis_data = createCWList(CW_start,CW_end);
+        var config_xAxis_data = CW_list;
 
         legend_list    = customerNameList;
         xAxis_data     = config_xAxis_data
@@ -224,7 +194,7 @@ window.onload = function () {
         contextMenu: false,//使用菜单
         readOnly: true,
         rowHeaders: getHeader_row(),
-        colHeaders: getHeader_col(CW_start,CW_end),
+        colHeaders: getBSHeader_col_by_CWlist(CW_list),
         rowHeaderWidth: 180,
         headerTooltips: {
             rows: false,
@@ -335,7 +305,7 @@ window.onload = function () {
       selectItem.style.display = 'none';
       // update data visualization panel
       updateDataPanel(this.getAttribute('data-value'));
-    }
+    };
   }
 
     function checkoutRadio() {
@@ -344,6 +314,36 @@ window.onload = function () {
 
 }
 
+
+function getCWsHeader(cw1, cw2){
+    var tableHeader = [''];
+    for(var i=cw1; i<=cw2; i++){
+        tableHeader.push('CW '+i);
+    }
+    return tableHeader;
+}
+
+
+function createCWList(CW_start,CW_end) {
+    var list = [];
+    for (var i = CW_start; i<=CW_end; i++){
+      list.push(i);
+    }
+    return list;
+}
+
+//NOTE: Not Correct method for get the datelist as Excel!
+function createDateList() {
+    var list = [];
+    for (var i = 10; i < 18; i++) {
+        if (i <= 12) {
+            list.push('2016-' + i + '-01');
+        } else {
+            list.push('2017-' + (i - 12) + '-01');
+        }
+    }
+    return list;
+}
 
 //*The following for code backup*//
 /*
