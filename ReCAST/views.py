@@ -245,7 +245,7 @@ def config(request):
                 i+=1;
             return -1;
         #get the real ATP_NTA value at the line, the index of that should based on the first element.
-
+        print('CW_LIST'+str(request.session["CW_list"]))
         i = get_index_atSelectedCWList(request.session["CW_list"], CW_start)
         print('request.session["ATP_NTA_row"]')
         print(request.session["ATP_NTA_row"])
@@ -829,7 +829,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     #             print("%s %f" %(v.Varname, v.X))
 
     # reCAST.write('ReCAST12.lp')
-
+    scenarioList_result
     rows_ATP = customers.copy()
     columns_ATP = df_list[1].copy()
     allocation_ATP_Plan = pd.DataFrame(columns=columns_ATP, index=rows_ATP, data=0.0)
@@ -1272,30 +1272,32 @@ def get_index_atSelectedCWList( cw_list , cw_value ):
 # if return None, it means user's inpout CW is not at the list.
 # else return the selected segment of user's input.
 def generateCWList(cw_list_origin, cw_start, cw_end):
+    result = [];
     index = 0;
     start_index = None;
     end_index   = None;
     max_index = len(cw_list_origin) - 1;
     for i in cw_list_origin:
-        if   i == cw_start:
+        if start_index == None and  i == cw_start:
             start_index = index;
             print("start_index="+str(index))
         #it must get cw_start firstly
-        elif (cw_start!= None) and i == cw_end:
+        elif (cw_start!= None) and (end_index == None) and (i == cw_end):
             end_index = index;
             print("end_index=" + str(index))
         index+=1;
     # if index has be founded
-    if end_index != None and start_index != None :
-        return cw_list_origin[start_index: end_index+1];
+    #if end_index != None and start_index != None :
+        #return cw_list_origin[start_index: end_index+1];
+    result = cw_list_origin[start_index: end_index+1];
     #User's input value are out of range.
     # after one pass traverse of the list, if CW_end > max(cw_list), or
     # CW_start < the fist_beginning min(cw_list), then throw an error.
-    elif cw_end > cw_list_origin[max_index] or cw_start < cw_list_origin[0]:
+    #cw_end > cw_list_origin[max_index] or cw_start < cw_list_origin[0]:
+    if [] == result :
         return None;
-    # Unknow Error.
     else:
-        return None;
+        return result;
 def get_slelectedCW_len(cw_list):
     return  cw_list.__len__();
 
@@ -1354,11 +1356,20 @@ def getRealValuelistByCW(cw_start, cw_end, cw_list_origin, valuelist):
     index_start = -1
     index_end = -1
     print("--------------")
+    cw_start_found = False
+    cw_end_found = False
     for index in range(l):
-        if cw_list_origin[index] == cw_start :
+        print(cw_list_origin[index])
+        if not cw_start_found and cw_list_origin[index] == cw_start :
             index_start = index;
-        if cw_list_origin[index] == cw_end :
+            cw_start_found = True;
+        if not cw_end_found and cw_list_origin[index] == cw_end :
             index_end = index;
+            cw_end_found = True;
+        if cw_end_found and cw_start_found:
+            break;
     #print("end of getRealValuelistByCW")
+    #print([cw_start, cw_end])
+    #print([index_start, index_end +1])
     #print(valuelist[index_start: index_end +1])
     return valuelist[index_start: index_end +1]
