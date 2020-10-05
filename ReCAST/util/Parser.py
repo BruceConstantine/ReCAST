@@ -1,4 +1,5 @@
 import xlrd
+import xlwt
 from xlutils.copy import copy
 
 from ReCAST.DO.Customer import Customer
@@ -145,12 +146,15 @@ class Parser():
     #here: the value: cw_start, cw_end and length of CW should be considered for selecting time horzion
     #note: date_list here is ready to used.
     @staticmethod
-    def parse2_export_file(path, filename, customer_list, customername_list,len_cw, cw_start, product_SP, date_list ):
+    def parse2_export_file(path, filename, customer_list, customername_list,len_cw, cw_start, product_SP, date_list, start_index, end_index ):
         #callback
         def __changedContent( ws, customer_list, customername_list,len_cw, cw_start, product_SP, date_list ):
             #TODO: may be need to changed here, the length of cw.
             #print CW list on the forth line
-            range_max = 1+len_cw
+            #range_max = 1+len_cw
+            range_max = len_cw
+            print(range_max)
+            print("len(date_list)="+str(len(date_list)))
             for i in range(range_max):
                ws.write(3, 3+i, 'CW' + str(cw_start+i))
                ws.write(4, 3+i, date_list[i])
@@ -175,6 +179,8 @@ class Parser():
             #compare cw length and each line at the to see if there is any garbage date, and clean it.
             customer_col_max = len(customername_list)
             introduction_col_max = 1;
+            #useless the following comments:
+            '''
             sheet = excel_file.sheet_by_index(0)
             max_row_num = sheet.nrows
             for row in range(0, max_row_num):
@@ -195,11 +201,16 @@ class Parser():
                     else:
                         #remove the extra cell or set as '' (empty)
                         pass;
+            '''
             #finally input the introduction data into excel file
             ws.write(0, 0 , 'PRODUCT Field Values can be either SalesProduct (SP) or Finished Product (MA) ')
             ws.write(1, 0 , 'MEASURE Field values can be TARGET_ALLOCATION or MIN_RUNRATE ')
             ws.write(2, 0 , 'DF_SELLER should be Leaf Sellers at which Allocations has to be maintained.')
 
+        output_excel = xlwt.Workbook()
+        ws = output_excel.add_sheet("ReCAST Result")
+        #here is the old way for wirte data into template file, which will result in some data not erased after the first calling.
+        '''
         abs_filename = path + filename;
         # abs_filename format e.g. -->  c/2020-05-28@15_27_06
         print(abs_filename)
@@ -216,7 +227,8 @@ class Parser():
         # https://blog.csdn.net/JasonTang1992/article/details/84074697?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-21.nonecase&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromBaidu-21.nonecase
         output_excel = copy(excel_file)
         ws = output_excel.get_sheet(0)
-
+        '''
+        print("customer_list--="+str(customer_list))
         #callback
         __changedContent( ws, customer_list, customername_list,len_cw, cw_start, product_SP, date_list );
 

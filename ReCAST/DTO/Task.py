@@ -7,7 +7,7 @@ class Task():
     def __init__(self,taskName=None,taskDescription=None, currentPage=None,
                     username=None, pid='', CW_start=None, CW_end=None, packingUnit=None,
                     MBS = [], RBS = [], plantATP=None, ATP_NTA=None, scenarioList=None,
-                    maxDelay=None,  enableRub=False,  TA_rid=None, cid=None, date=''):
+                    maxDelay=None,  enableRub=False,  TA_rid=None, cid=None, date='',CW_length=None):
         #Get Max ID + 1
         self.tid = DAO.getMaxID("Task") + 1
         # Task descriptions
@@ -37,10 +37,7 @@ class Task():
         # Reference to Config table 使用ForeignKey扩展Task表
         self.cid =cid  # ForeignKey(Config,on_delete=models.CASCADE, null=True)
         self.date=date
-
-    def getCWlength(self):
-        l = self.CW_end - self.CW_start
-        return l if l > 0 else self.CW_start - self.CW_end
+        self.CW_length = CW_length;
 
     @staticmethod
     def copy(taskmodel):
@@ -105,7 +102,7 @@ class Task():
             'taskDescription': self.taskDescription,
             'username': self.username,
             'pid': self.pid,
-            'CW_length': self.getCWlength(),
+            'CW_length': self.CW_length,
             'CW_start': self.CW_start,
             'CW_end': self.CW_end,
             'maxDelay': self.maxDelay,

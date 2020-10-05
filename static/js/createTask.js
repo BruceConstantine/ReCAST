@@ -211,14 +211,64 @@ function basic_ajax() {
 }
 
 function pageSubmit(element){
+    /*Roughly check*/
+    function valid_CW_start(cw_start) {
+        if (cw_start < 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function valid_CW_end(cw_end) {
+        if (cw_end > 100) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function valid_packingUnit(packingUnit) {
+        if (packingUnit < 0 || packingUnit > 100000) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function valid_weightPairList(CW_input_list,SW_input_list) {
+        var len_CusW = CW_input_list.length
+        var len_SceW = SW_input_list.length
+        if (len_CusW != len_SceW) {
+            return false;
+        }
+        for(var i = 0; i < len_SceW; i++) {
+            if (Number(CW_input_list[i].value) + Number(SW_input_list[i].value) != 1) {
+                return false;
+            } else {
+                continue;
+            }
+        }
+        return true;
+    }
     function constrain() {
+        var successConfig = false;
         taskName = document.getElementsByName('taskName')[0]
         taskDescription = document.getElementsByName('taskDescription')[0]
-        CW_start = document.getElementsByName('CW_start')[0]
-        CW_end = document.getElementsByName('CW_end')[0]
-        packagingUnit = document.getElementsByName('packagingUnit')[0]
+        CW_start = Number(document.getElementsByName('CW_start')[0].value)
+        CW_end = Number(document.getElementsByName('CW_end')[0].value)
+        packingUnit = Number(document.getElementsByName('packingUnit')[0].value)
         CW_input_list = document.getElementsByName('CW_input')
         SW_input_list = document.getElementsByName('SW_input')
+        if (valid_CW_start(CW_start) && valid_CW_end(CW_end) && valid_packingUnit(packingUnit) && valid_weightPairList(CW_input_list, SW_input_list)) {
+            successConfig = true;
+            console.log("no problem input");
+        } else {
+            successConfig = false;
+            console.log(valid_CW_start(CW_start));
+            console.log( valid_CW_end(CW_end) );
+            console.log( valid_packingUnit(packingUnit));
+            console.log(valid_weightPairList(CW_input_list, SW_input_list));
+        }
         /*alert(
             "taskName= "+taskName.value +"\n"+
             "taskDescription= "+taskDescription.value +"\n"+
@@ -232,10 +282,13 @@ function pageSubmit(element){
             "SW_input_ = "+SW_input_list[0].value +"\n"+
             "SW_input_ = "+SW_input_list[1].value +"\n"
         );*/
-
-
+        return successConfig;
     }
 
-    constrain()
-    __submit(element)
+    var isSuccessConfig = constrain();
+    if (isSuccessConfig) {
+        __submit(element);
+    } else {
+        alert("Please input the correct/rational value. Details please check user manual.")
+    }
 }

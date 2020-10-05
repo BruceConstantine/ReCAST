@@ -2,20 +2,20 @@ import json
 import os
 import time
 import random
-import hashlib
 
 from django.contrib.auth import authenticate
 from django.http import FileResponse
 from django.http import JsonResponse
 from django.shortcuts import render, HttpResponse, redirect
 
-# Create your views here.
 #from ReCAST.DTO import DataTransferObj_GurobiInterface
 from ReCAST.DTO.Scenario import Scenario
 from ReCAST.DTO.Task import Task
 from ReCAST.models import Task as Taskmodel
 from ReCAST.models import User as Usermodel
+from ReCAST.util import WebUtils, Algo
 from ReCAST.util.ExcelFileOperator import ExcelFileOpearator
+from ReCAST.util.HTMLGenerator import *
 from ReCAST.util.Parser import Parser
 
 from django.core.mail import send_mail
@@ -23,37 +23,6 @@ from gurobipy import *
 import pandas as pd
 import numpy as np
 
-
-def back_previews_page_html_str():
-    return '<html><head><script>history.go(-1)</script></head><body></body></html>'
-
-def back_previews_page_html_str_with_alert(alert_str):
-    return '<html><head><script>alert("'+alert_str+'");history.go(-1);</script></head><body></body></html>'
-
-
-def getRouter(url_fullpath):
-    parts = url_fullpath.split('/')
-    i_upbound = len(parts) - 1
-    i = 0
-    for part in parts:
-        if part.endswith('8000') and i < i_upbound:
-            return parts[i + 1]
-        else:
-            i += 1
-    return None;
-
-def __hash(password):
-    h = hashlib.md5()
-    h.update(password.encode('utf-8'))
-    return h.hexdigest()
-
-def getTaskAtSession(request):
-    task = request.session.get("task")
-    print("in function getTaskAtSession(request): task = ")
-    print(task)
-    if task == None:
-        task = {}
-    return task
 
 def index(request):
     #print(request.headers)
@@ -64,7 +33,7 @@ def index(request):
         # * SSL at HTTPS protocol shall encoding its content for confidentiality
         #   But another method is passing the Hash value instead of the plaintext password -> but hacker may can know the encrypting algorithm.
         password = form.get('password')
-        hasspw = __hash(password)
+        hasspw = WebUtils.get_hashDigest_0x(password)
         # Authentication
         user = Usermodel.objects.filter(username=uname)
         if user: # if exists
@@ -114,13 +83,14 @@ def createTask(request):
     #request.headers['type'] is string type.
     if request.headers.__contains__('Referer'):
         url_origin = request.headers['Referer']
-        if getRouter(url_origin) == 'index':
+        if WebUtils.getRouter(url_origin) in ['index', 'config'] :
             return render(request, 'createTask.html')
         elif request.method == "POST":
             return render(request, 'createTask.html') # ,{"data":[]} initialization
-        #create task
-        elif request.method == "GET":
+        #TODO: check here!
+        elif request.method == "GET" and request.session['username'] == None:
             return HttpResponse(back_previews_page_html_str)
+
         #Check username
         #Check pid
         # whatever, must to let the system stay at one state no matter from back to forward or forward to back.
@@ -135,6 +105,7 @@ def upload(request):
         #print(request.POST)
         if file is None:
             return HttpResponse("No File are uploaded!")
+            #TODO: alert window here.!.
         #if file:  # len(request.FILES.keys()) != 0
             # Load Excel data to session
         else:
@@ -153,7 +124,7 @@ def upload(request):
             # a = request.session.get('username')
             #return JsonResponse(excel_data_json)
             #print(jsonObj)
-            print( request.session["customerList"] )
+            print( request.session["customerList" ]   )
             print( "--------------------------" )
             print( request.session["customerList"][0]['CMAD'] )
             print( "--------####################################------------" )
@@ -179,7 +150,7 @@ def downloadManual(request):
     return response
 
 def config(request):
-    #task = getTaskAtSession(request)
+    #task = WebUtils.getTaskAtSession(request)
     #TODO: task here should not be a session, which should be a task--- that need to be updated at upload function
     task = request.session;
     if request.method == "POST":
@@ -192,39 +163,59 @@ def config(request):
         SW_input_list = request.POST.getlist('SW_input')
         CW_input_list = request.POST.getlist('CW_input')
         scenarioList=[]; arr_index = 0;
-
+        print("at config: packingUnit="+str(packingUnit))
         #TODO: bug here, we can't use absoluate value directly to get the len,as its length is not centainable
         #request.session['CW_len']  = abs(CW_end-CW_start)
         cw_list_origin = request.session['CW_list']
-        request.session['CW_list'] = generateCWList(cw_list_origin, CW_start, CW_end);
-        request.session['CW_len'] = get_slelectedCW_len(request.session['CW_list'])
+        #request.session['CW_list'] = generateCWList(cw_list_origin, CW_start, CW_end);
+        cw_select = Algo.select_cw_arr(CW_start, CW_end,cw_list_origin);
+        #request.session['CW_select'] = cw_select
+        request.session['CW_list'] = cw_select.getSelectedArr();
+        request.session['CW_len'] = len(request.session['CW_list']);
 
-        request.session['CW_start']  = CW_start
-        request.session['CW_end']  = CW_end
+        request.session['CW_start']  = cw_select.firstElement();
+        request.session['CW_end']  = cw_select.lastElement();
+        request.session['CW_start_index']  = cw_select.get_originArrIndex_startElement();
+        request.session['CW_end_index']  = cw_select.get_originArrIndex_endElement();
+        request.session['ATP_NAT_index_at_origin_CW_list']  = cw_select.get_originArrIndex_startElement();
 
-        # NOTE: update date_list
-        request.session["date_list"] = getRealValuelistByCW(CW_start, CW_end, cw_list_origin,  request.session["date_list"])
-        print("request.session['date_list']"+str(request.session["date_list"]))
+        print("CW_start_index="+str(request.session['CW_start_index']))
+        print("CW_end_index="+str(request.session['CW_end_index']) )
 
         #update PlantATP once CW start\end are given
-        request.session["plantATP"] = getRealValuelistByCW(CW_start,CW_end,cw_list_origin, request.session['plantATP'] )
+        #request.session["plantATP"] = getRealValuelistByCW(CW_start,CW_end,cw_list_origin, request.session['plantATP'] )
+
+        print("config: plantATP " + str())
+        index_start = request.session["CW_start_index"];
+        index_end = request.session["CW_end_index"];
+        request.session["plantATP"] = request.session["plantATP"][ index_start : 1 + index_end ]
+        #request.session["plantATP"] = getRealValuelistByCW(CW_start,CW_end,cw_list_origin, request.session['plantATP'] )
         print('request.session["plantATP"] = '+str(request.session["plantATP"] ))
+
+        # NOTE: update date_list
+        print("Before: request.session['date_list']="+str(request.session["date_list"]))
+        #Error Here, abandon this method for selecting.
+        #request.session["date_list"] = getRealValuelistByCW(CW_start, CW_end, cw_list_origin,  request.session["date_list"])
+        request.session['date_list'] = request.session['date_list'] [index_start : 1+index_end]
+        print("request.session['date_list']="+str(request.session["date_list"]))
 
         #record the original CMAD for each customer
         origin_CMAD_order = []
         CMAD_order = []
         customer_unparsed_dictlist = request.session["customerList"]
+        print("customer_unparsed_dictlist:"+str(customer_unparsed_dictlist))
         for customerDict in customer_unparsed_dictlist:
             selectedCMADList = getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,
                                                              cw_list_origin=cw_list_origin,
                                                              valuelist=customerDict["CMAD"]);
             #TODO: bug here
             origin_CMAD_order.append(customerDict["CMAD"]);
-            customerDict["CMAD"] = selectedCMADList;
+            customerDict["CMAD"] = customerDict["CMAD"][index_start : 1+index_end];
             CMAD_order.append(selectedCMADList);
         request.session["origin_CMAD_order"] = origin_CMAD_order
         request.session["CMAD_order"] = CMAD_order
         print(' request.session["origin_CMAD_order"]='+str(request.session["origin_CMAD_order"]))
+        request.session["customerList"]=customer_unparsed_dictlist
         print(request.session["customerList"])
 
         for stockWeight in SW_input_list:
@@ -246,15 +237,15 @@ def config(request):
             return -1;
         #get the real ATP_NTA value at the line, the index of that should based on the first element.
         print('CW_LIST'+str(request.session["CW_list"]))
-        i = get_index_atSelectedCWList(request.session["CW_list"], CW_start)
+        #i = get_index_atSelectedCWList(request.session["CW_list"], CW_start)
         print('request.session["ATP_NTA_row"]')
         print(request.session["ATP_NTA_row"])
-        print(i)
-        ATP_NTA = getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,cw_list_origin=cw_list_origin, valuelist=request.session["ATP_NTA_row"])
+        #print(i)
+        ATP_NTA =  request.session["ATP_NTA_row"][request.session['ATP_NAT_index_at_origin_CW_list']]
+        #ATP_NTA = getRealValuelistByCW(cw_start=CW_start, cw_end=CW_end,cw_list_origin=cw_list_origin, valuelist=request.session["ATP_NTA_row"])
         #ATP_NTA = getRealValuelistBySelectedCW(cw_start=CW_start, cw_end=CW_end,cw_list=cw_list_origin, valuelist=request.session["ATP_NTA_row"])
-        print(i)
-        print(ATP_NTA)
-        ATP_NTA = ATP_NTA[0]
+
+        #ATP_NTA = ATP_NTA[0]
 
         print("-------------")
         print("in view.config: ATP_NTA = "+str(ATP_NTA))
@@ -263,7 +254,7 @@ def config(request):
         customerList = request.session["customerList"]
         username = request.session["username"]
         currentPage = 'createTask'
-
+        CW_length = request.session['CW_len']
         #get Scenario list
         '''print(pid)
         print(plantATP)
@@ -284,8 +275,9 @@ def config(request):
                 
             elif rowName == 'ATP_NTA':
         '''
-        task = Task(taskName, taskDescription, currentPage, username, pid, CW_start, CW_end, packingUnit,
-                    plantATP=plantATP, ATP_NTA=ATP_NTA, scenarioList=scenarioList)
+        task = Task(taskName=taskName, taskDescription=taskDescription, currentPage=currentPage, username=username,
+                    pid=pid, CW_start=CW_start, CW_end=CW_end, packingUnit=packingUnit,
+                    plantATP=plantATP, ATP_NTA=ATP_NTA, scenarioList=scenarioList,CW_length=CW_length)
         # MBS =[], RBS =[]
        # maxDelay=None, enableRub=False, TA_rid=None, cid=None, date='')
         '''
@@ -303,7 +295,7 @@ def config(request):
         # request.session["task"] = {"task" : task} #--> task is not JSON serializable
         request.session["task"] = task.getDict()
         #print( task.getDict() )
-        taskDict = getTaskAtSession(request)#request.session["task"] ;
+        taskDict = WebUtils.getTaskAtSession(request)#request.session["task"] ;
         # print(json.loads(request.session.get("task"))["tid"])
         # task = task.getJSON()
 
@@ -322,7 +314,7 @@ def config(request):
 
 def run(request):
     if request.method == "POST":
-        task = getTaskAtSession(request)
+        task = WebUtils.getTaskAtSession(request)
         task["maxDelay"] = request.POST.get('maxdelay')
         # what type of task["MBS"] is ? a big string.
         task["MBS"] =request.POST.get('MBS')
@@ -336,9 +328,11 @@ def run(request):
         #dl=json.dumps(resultlist)
     datalist = [[93, 93, 0, 100.01], [20, 23, 26, 29]]
     dl=json.dumps(datalist)
-    taskDict = getTaskAtSession(request)
+    taskDict = WebUtils.getTaskAtSession(request)
     #customerList = run_gurobi(abs_filename=request.session["filename_upload"],
-    scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
+    print("before run Gurobi:"+str(request.session["customerList"]))
+    try:
+        scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
                                   CW_start=taskDict['CW_start'],
                                   CW_end=taskDict['CW_end'],
                                   CW_start_date=None,CW_end_date=None,
@@ -350,8 +344,11 @@ def run(request):
                                   bin_usefrom_stock_in=taskDict["bin_use_from_stock"],
                                   ATP_NTA_in=int(taskDict["ATP_NTA"]),
                                   scenarioList_in=taskDict["scenarioList"],
-                                  maxDelay_in=taskDict["maxDelay"]
+                                  maxDelay_in=taskDict["maxDelay"],
+                                  date_list_in=request.session['date_list']
                               )
+    except:
+        scenarioList_objList = None;
     if scenarioList_objList == None:
         return HttpResponse(back_previews_page_html_str_with_alert("your input is not correct! Please re-configratue your input parameters!"));
     request.session["scenarioList_objList"] = scenarioList_objList
@@ -411,6 +408,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
                                     #
                                     #Then, the array list should be: [ [0.2, 0.8], [0.6, 0.4] , [0.1, 0.9] ]
                  maxDelay_in=None,  # int: integer value
+                 date_list_in = [], #date_list_in to instand df[1], assinging date value to columns_ATP
                  enableRub=False,  # boolean list: integer value of the CW_start
                  PGL=[]  # int list: integer list, possible gain or loss from index CW_start to CW_end
                  ):
@@ -734,7 +732,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     reCAST.Params.IntFeasTol = 1e-9  # -5 -9
     reCAST.Params.FeasibilityTol = 1e-9  # -6 -9
     reCAST.Params.OptimalityTol = 1e-9
-    reCAST.Params.TimeLimit = 20
+    reCAST.Params.TimeLimit = 120
 
     len_scenarioList = len(scenarioList)
 
@@ -756,7 +754,12 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
 
         #     Exteraction of allocated quantities from ATP in format of dataframe
         rows_ATP = customers.copy()
-        columns_ATP = df_list[1].copy() #date
+
+        #TODO: MAYBE EEEOR HERE!
+        #columns_ATP = df_list[1].copy() #date
+        #@Behrouz, I comment the old one, and put new statement for the date selection
+        columns_ATP = date_list_in;
+
         allocation_ATP_Plan = pd.DataFrame(columns=columns_ATP, index=rows_ATP, data=0.0)
 
         for i, r, t in var_Allocation_ATP.keys():
@@ -777,7 +780,8 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
         # @Zhikang: the printed values in each loop are the solution that you should take for result tabels.
 
         rows_stock = customers.copy()
-        columns_Stock = df_list[1].copy()
+        #columns_Stock = df_list[1].copy() # df_list[1] is date_list
+        columns_Stock = date_list_in
         allocation_Stock_Plan = pd.DataFrame(columns=columns_Stock, index=rows_stock, data=0.0)
 
         for i, r, t in var_Allocation_Stock.keys():
@@ -791,8 +795,10 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
 
         #     Exteraction of buffer stock level
         rows_buffer = ["Buffer Plan"]
-        #columns_buffer is date, which also need to cooresoponding to the expected CW length.
-        columns_buffer = df_list[1].copy()#[CW_start-1:CW_end]
+        #columns_buffer is date_list
+        #columns_buffer = df_list[1].copy() #[date of CW_start to the date of CW_end]
+        columns_buffer = date_list_in
+        print("columns_buffer="+str(columns_buffer))
         buffer_Plan = pd.DataFrame(columns=columns_buffer, index=rows_buffer, data=0.0)
 
         for t in var_BufferStock.keys():
@@ -804,7 +810,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
         scenarioList_result.append(allocationPlan_to_customerList(customers, allocation_ATP_Plan.to_dict(), allocation_Stock_Plan.to_dict(), buffer_Plan.to_dict()))
 
     print("------------------------------------------------")
-    print("------------------------------------------------")
+    print(allocation_ATP_Plan.to_dict())
     print("------------------------------------------------")
     print("------------------------------------------------")
     print(scenarioList_result)
@@ -831,7 +837,8 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     # reCAST.write('ReCAST12.lp')
     scenarioList_result
     rows_ATP = customers.copy()
-    columns_ATP = df_list[1].copy()
+    #columns_ATP = df_list[1].copy() #df_list[1].copy() is the copy of selected date list
+    columns_ATP = date_list_in
     allocation_ATP_Plan = pd.DataFrame(columns=columns_ATP, index=rows_ATP, data=0.0)
     print("--------customers----------")
     print(customers)
@@ -851,7 +858,8 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     #allocation_ATP_Plan
 
     rows_stock = customers.copy()
-    columns_Stock = df_list[1].copy()
+    #columns_Stock = df_list[1].copy() # df_list[1].copy() is the selected date list
+    columns_Stock = date_list_in
     allocation_Stock_Plan = pd.DataFrame(columns=columns_Stock, index=rows_stock, data=0.0)
 
     for i, r, t in var_Allocation_Stock.keys():
@@ -867,7 +875,8 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     # print(buffer_Plan)
 
     rows_buffer = ["Buffer Plan"]
-    columns_buffer = df_list[1].copy()
+    #columns_buffer = df_list[1].copy() # df_list[1].copy() is date_list
+    columns_buffer = date_list_in
     buffer_Plan = pd.DataFrame(columns=columns_buffer, index=rows_buffer, data=0.0)
 
     for t in var_BufferStock.keys():
@@ -996,13 +1005,13 @@ def adv(request):
     #Referer
     #differ(Referer,Host)
     #url_origin = request.headers['Referer']
-    if getRouter(url_origin) != "config":
+    if WebUtils.getRouter(url_origin) != "config":
         return render(request, 'config.html')
     return render(request, 'advOpt.html')
 
 
 def modify(request):
-    taskDict = getTaskAtSession(request);
+    taskDict = WebUtils.getTaskAtSession(request);
     scenarioList_objList = request.session["scenarioList_objList"];
     scenario_no =int( request.GET.get('s',1).strip());
     scenario_index = scenario_no - 1;
@@ -1046,7 +1055,7 @@ def export(request):
     path += "/static/excel/";
     #path += "/static/excel/";
 
-    print('request.session["date_list"]'+str(request.session["date_list"]))
+    print('request.session["date_list"]='+str(request.session["date_list"]))
 
     targetFilePath = Parser.parse2_export_file(path=path, filename=filename,
                                                customer_list = customer_list,
@@ -1054,7 +1063,9 @@ def export(request):
                                                len_cw = request.session['CW_len'],
                                                cw_start = request.session['CW_start'],
                                                product_SP = request.session['pid'],
-                                               date_list = request.session["date_list"])
+                                               date_list = request.session["date_list"],
+                                               start_index = request.session['CW_start_index'],
+                                               end_index = request.session['CW_end_index'])
 
     # Test
     print(targetFilePath);
@@ -1165,7 +1176,7 @@ def regist(request):
         empnum = request.POST.get("empnum") #
         email = request.POST.get("email") #
         otc = request.POST.get("otc") #
-        hasspw=__hash(password)
+        hasspw = WebUtils.get_hashDigest_0x(password)
         if otc != otc_session:
             return render(request, 'registerResult.html',{
                                 'header': 'Register Successful!',
@@ -1200,7 +1211,7 @@ def reset(request):
 def doreset(request):
     username = request.POST.get("username")
     user = Usermodel.objects.get(username=username)
-    user.hassPW = __hash(request.POST.get("password"))
+    user.hassPW = WebUtils.get_hashDigest_0x(request.POST.get("password"))
     try:
         user.save()
     except:
@@ -1220,7 +1231,7 @@ def getActiveCode(request):
 def update(request):
     if request.method == "GET":
         request.GET.get("s")
-        taskDict = getTaskAtSession(request)
+        taskDict = WebUtils.getTaskAtSession(request)
         # customerList = run_gurobi(abs_filename=request.session["filename_upload"],
         scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
                                           CW_start=taskDict['CW_start'], CW_end=taskDict['CW_end'], CW_start_date=None,
@@ -1276,7 +1287,6 @@ def generateCWList(cw_list_origin, cw_start, cw_end):
     index = 0;
     start_index = None;
     end_index   = None;
-    max_index = len(cw_list_origin) - 1;
     for i in cw_list_origin:
         if start_index == None and  i == cw_start:
             start_index = index;
@@ -1290,10 +1300,6 @@ def generateCWList(cw_list_origin, cw_start, cw_end):
     #if end_index != None and start_index != None :
         #return cw_list_origin[start_index: end_index+1];
     result = cw_list_origin[start_index: end_index+1];
-    #User's input value are out of range.
-    # after one pass traverse of the list, if CW_end > max(cw_list), or
-    # CW_start < the fist_beginning min(cw_list), then throw an error.
-    #cw_end > cw_list_origin[max_index] or cw_start < cw_list_origin[0]:
     if [] == result :
         return None;
     else:
