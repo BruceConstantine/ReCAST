@@ -1,7 +1,7 @@
 //variable upgrade
 //data = [],  container = document.getElementById('BS_table'), hot;
 var table_BS, hot_allow;
-
+var vaild_input_at_configPage = false;
 
 function setBSTableContent(rowname, value) {
     var row;
@@ -71,7 +71,12 @@ function listStringfy(list) {
     return res_str;
 }
 
-function pageSubmit(btn) {
+function pageSubmit(element) {
+    if ( !vaild_input_at_configPage ){
+        alert("Please check the RBS data at table firstly before generating results.")
+        return;
+    }
+
     //var btn= document.getElementById('submit')
     var MBS_input= document.getElementById('MBS_input')
     var RBS_input= document.getElementById('RBS_input')
@@ -86,7 +91,6 @@ function pageSubmit(btn) {
     var i_max = templist_Allow.length, j_max = 0;
     if(i_max>0)
         j_max = templist_Allow[0].length;
-        console.log("j_max="+j_max)
         console.log("j_max="+j_max)
     for (var i_ = 0; i_ < i_max; i_++){
         var templist_Allow_aRow = new Array();
@@ -111,8 +115,26 @@ function pageSubmit(btn) {
     //rather than [1,1,2,2].
     allowTable_input.value = JSON.stringify(allow_use_binary_list);
     console.log(allowTable_input.value)
+    console.log("Before running")
+    /*
+    var url_post = ''
+    post((url_post, {"maxdelay":10,
+            "MBS":"",
+            "RBS":"",
+            "bin_use_from_stock":""
+            } ,function () {
+        //empty
+    }))
+    */
+    // window.location.href='/run/';
+    // $("#submit_btn").submit();
 
-    __submit(btn)
+    /*Error! here!*/
+    __submit(element);
+
+    /*Error! here!*/
+    //window.location.href='/run/';
+
     //btn.click = '';
     //btn.type = 'submit'
     //btn.click()
@@ -287,8 +309,43 @@ $(document).ready( function(){
 })
  */
 
+function checkRBS() {
+    var RBS_list = table_BS.getData()[1]
+    var sum_RBS_list = getArrSum(RBS_list)
+    var sum_plantATP = getArrSum(plantATP)
+    var sum_CMAD = 0;
+    customerList_CMAD.forEach( function(item) {
+        sum_CMAD += getArrSum(item)
+    })
+    var sum_threshold_value = sum_plantATP - sum_CMAD;
+    if (sum_RBS_list >= sum_threshold_value) {
+        vaild_input_at_configPage = false;
+        alert("Your input value for RBS is too big.");
+    } else {
+        vaild_input_at_configPage = true;
+        alert("This is a applicable input.");
+    }
+    var sum_RBS_span = document.getElementById("sum_RBS")
+    sum_RBS_span.innerText = sum_RBS_list;
+}
+
+
+// arr must be a list of integer or ineteger string, if there is an exception cell at the list, it cannot to work　
+function getArrSum(arr){
+    var l = arr.length;
+    var lastElement = arr[l-1];
+    //if not number type and content is not a number, it should return 0 as result
+    if ( lastElement == undefined || lastElement == null || lastElement == ""
+            || ( typeof (lastElement) != "number" &&  !new RegExp("^[0-9]*$").test(lastElement.trim()) )
+    ) {
+        return 0;
+    } else {
+        return eval(arr.join("+"));
+    }
+}
 
 window.onload = function () {
+
     //BS_table
 	var hot = new Handsontable( document.getElementById('BS_table'), BStableConfig );
     table_BS = hot
@@ -331,6 +388,24 @@ window.onload = function () {
     hot3.addHook('afterOnCellMouseDown', function(event, coords){
         hot3.setCellMeta(coords.row, coords.col, 'className', hot2.getCellMeta(coords.row, coords.col).className + ' clk-td');
     });
+
+    /*********** check input is infeasible or not ************/
+
+    //display data for <span> of checking infeasible case input.
+    var sum_RBS_span = document.getElementById("sum_RBS")
+    var sum_threshold_span = document.getElementById("sum_threshold")
+    var sum_plantATP = getArrSum(plantATP)
+    var sum_CMAD = 0;
+    customerList_CMAD.forEach( function(item) {
+        sum_CMAD += getArrSum(item)
+    })
+    var sum_threshold_value = sum_plantATP - sum_CMAD;
+    var RBS_list = table_BS.getData()[1]
+    var sum_RBS_list = getArrSum(RBS_list)
+
+    sum_threshold_span.innerText = sum_threshold_value;
+    sum_RBS_span.innerText = sum_RBS_list;
+
 
     /*
     ---Testing---

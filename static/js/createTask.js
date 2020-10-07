@@ -264,6 +264,7 @@ function pageSubmit(element){
             console.log("no problem input");
         } else {
             successConfig = false;
+            /*For testing*/
             console.log(valid_CW_start(CW_start));
             console.log( valid_CW_end(CW_end) );
             console.log( valid_packingUnit(packingUnit));

@@ -57,7 +57,6 @@
 
     <div class="wrapper">
     <form action="/run/" method="post" enctype="multipart/form-data">{% csrf_token %}
-
         <p>
             <div id="div_stock_upper" class="div_table">
                 <div id="div_stock_upper_left">
@@ -69,15 +68,25 @@
                     <span>*Reserve Buffer Stock: <input id="RBS" type="text"> <button onclick="BS_apply_callback('RBS')" class="greenBtn-small" type="button">Apply</button> </span>
                 </div>
             </div>
-            <br/>
-            <br/>
+        </p>
+        <br/>
+        <br/>
+        <p>
             <div class="div_table">
                  <h5 class="table_name" > Buffer Stock Allocation</h5>
                 <!-- 这里是那个表 （Handsontable） -->
                  <div id="BS_table" border="1" style="height:auto; overflow-x: scroll" name="BS">
                  </div>
-
-                <button class="greenBtn-small" style="display: inline-block; float: right; margin-top:14px;" type="button" onclick="cleanBSTable()">clean</button>
+                <div style="float: left">
+                    <span>Currently, Sum of Reserve Buffer Stock (RBS) for CWs is <b><span id="sum_RBS"> </span></b>.</span>
+                    <br/>
+                    <span>(Click 'Check RBS Sum' for update Sum of RBS.)</span>
+                    <br/>
+                    <span>*Note: Sum of RBS must be less than <b><span id="sum_threshold"> </span></b>.</span>
+                </div>
+                <button id="checkRBS_btn" class="greenBtn-small" style="display: inline-block; float: right; margin-top:14px;" type="button" onclick="cleanBSTable()"> Clean  Table </button>
+                <button class="greenBtn-small" style="display: inline-block; float: right; margin-top:14px;" type="button" onclick="checkRBS()">Check RBS Sum</button>
+                <br/>
                 <br/>
                 <br/>
                 <!--TODO: float the button so to align with table at one row-->
@@ -109,7 +118,7 @@
         <button class="greenBtn"  type="button"><a href="/createTask/">Scenario Config</a></button>
         <button class="greenBtn"  type="button"><a href="/advOpt/">Advanced Option</a></button>
         <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
-        <input id="submit" onclick="pageSubmit(this)" class="greenBtn" type="button" value="Run  " />
+        <input id="submit_btn" class="greenBtn" type="submit" onclick="pageSubmit(this)" value="Run " Run />
     </form>
     </div>
 {% endblock btnBar %}

@@ -33,7 +33,9 @@ class URLMiddleware(MiddlewareMixin):
                     return render(request, 'login.html');
 
         elif request.session.get('username', None):
-                pass
+            print("request.session.get('username', None)=True");
+            #if
+            pass;
         else:
             return render(request, 'login.html')
 

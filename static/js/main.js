@@ -12,6 +12,7 @@ $(document).ready(function(){
 
 function __submit(DOMelement) {
      clickCallback = DOMelement.click ;
+     console.log(clickCallback)
      DOMelement.click = '';
      DOMelement.type = 'submit'
      DOMelement.click();

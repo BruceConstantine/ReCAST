@@ -149,6 +149,14 @@ def downloadManual(request):
     response['Content-Disposition'] = 'attachment;filename="ReCAST Use Manual.pdf"'
     return response
 
+'''
+def config(request):
+    try:
+        __config(request);
+    except:
+        return HttpResponse(back_previews_page_html_str_with_alert("Input parameters incorrect"))
+'''
+
 def config(request):
     #task = WebUtils.getTaskAtSession(request)
     #TODO: task here should not be a session, which should be a task--- that need to be updated at upload function
@@ -295,15 +303,16 @@ def config(request):
         # request.session["task"] = {"task" : task} #--> task is not JSON serializable
         request.session["task"] = task.getDict()
         #print( task.getDict() )
-        taskDict = WebUtils.getTaskAtSession(request)#request.session["task"] ;
         # print(json.loads(request.session.get("task"))["tid"])
         # task = task.getJSON()
 
-        print('CW_start: '+str(taskDict['CW_start']))
-        print('CW_end: '+str(taskDict['CW_end']))
-        print("plantATP: "+str(taskDict["plantATP"]))
-        print("ATP_NTA: "+str(taskDict["ATP_NTA"])) # [0],
-        print("customerList: "+str(request.session["customerList"])) # [0],
+    taskDict = WebUtils.getTaskAtSession(request)#request.session["task"] ;
+
+    print('CW_start: '+str(taskDict['CW_start']))
+    print('CW_end: '+str(taskDict['CW_end']))
+    print("plantATP: "+str(taskDict["plantATP"]))
+    print("ATP_NTA: "+str(taskDict["ATP_NTA"])) # [0],
+    print("customerList: "+str(request.session["customerList"])) # [0],
     return render(request, 'config.html',
                     {'CW_list':request.session['CW_list'],
                     'plantATP' :json.dumps(taskDict["plantATP"]),
@@ -313,10 +322,17 @@ def config(request):
    #     return render(request, '403.html')
 
 def run(request):
-    if request.method == "POST":
+    #Here we have problem for: access ReCAST running GUrobi at page config.html
+    if request.method == "POST" or request.method == "GET":
+    #if request.method == "POST":
         task = WebUtils.getTaskAtSession(request)
         task["maxDelay"] = request.POST.get('maxdelay')
         # what type of task["MBS"] is ? a big string.
+        """
+        task["MBS"] =request.GET.get('MBS')
+        task["bin_use_from_stock"] =  json.loads(request.GET.get('bin_use_from_stock'))
+        task["RBS"] =request.GET.get('RBS')
+        """
         task["MBS"] =request.POST.get('MBS')
         task["bin_use_from_stock"] =  json.loads(request.POST.get('bin_use_from_stock'))
         task["RBS"] =request.POST.get('RBS')
@@ -347,7 +363,7 @@ def run(request):
                                   maxDelay_in=taskDict["maxDelay"],
                                   date_list_in=request.session['date_list']
                               )
-    except:
+    except :
         scenarioList_objList = None;
     if scenarioList_objList == None:
         return HttpResponse(back_previews_page_html_str_with_alert("your input is not correct! Please re-configratue your input parameters!"));
@@ -732,7 +748,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     reCAST.Params.IntFeasTol = 1e-9  # -5 -9
     reCAST.Params.FeasibilityTol = 1e-9  # -6 -9
     reCAST.Params.OptimalityTol = 1e-9
-    reCAST.Params.TimeLimit = 120
+    reCAST.Params.TimeLimit = 300
 
     len_scenarioList = len(scenarioList)
 
@@ -1048,7 +1064,10 @@ def details(request):
     return render(request, 'details.html', {'task': task})
 
 def export(request):
-    customer_list = request.session['scenarioList_objList'][0]['customerList'];
+
+    selected_scenario_index = int(request.POST.get("selected_scenario_index"))
+    print("selected_scenario_index:"+str(selected_scenario_index))
+    customer_list = request.session['scenarioList_objList'][selected_scenario_index]['customerList'];
     basedir = os.path.dirname(__file__)
     filename = 'Allocation_Template.xlsx'
     path = basedir ;

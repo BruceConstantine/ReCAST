@@ -228,6 +228,7 @@ window.onload = function () {
 
     //Bind event callback to button onclick listener or others listeners....
     var selectableBtnHTMLCollection = document.getElementsByClassName('select-scen-btn')
+    var selected_scenario_index_Input = document.getElementById('selected_scenario_index')
     var selectableBtnList = [...selectableBtnHTMLCollection]
     var lastSelectedBtn = null;
     //Here the 'scenario_has_selected' is a flag variable showing if one of button is selected.
@@ -244,12 +245,19 @@ window.onload = function () {
                 }
                 targetScenario = getTargetScenario(item);
                 lastSelectedBtn = item;
+
+                //item_id Format: sce-btn-{{a_scenario.number}}, split by '-'.
+                var item_id = ((item.id).split('-'))[2];
+                //The scenario index at webpage always bigger one than the index at code
+                selected_scenario_index_Input.value = Number(item_id)-1;
             } else if (lastSelectedBtn == item) {
             //If the button is selected now, then user click again, button remove the added style.
                 lastSelectedBtn.classList.remove("gbtn-selectable");
                 lastSelectedBtn = null;
+                selected_scenario_index_Input.value = "";
             }
         }
+
     })
 
     //var selectableBtnHTMLCollection = document.getElementById("")
