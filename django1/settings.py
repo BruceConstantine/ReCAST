@@ -121,19 +121,23 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
+# 静态资源访问的起始url
 STATIC_URL = '/static/'
-# STATIC_ROOT = 'static' # 新增行
+
+# 指定静态资源所在的目录
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,"static/")
+    os.path.join(BASE_DIR, 'static')
    #, '/var/www/static/'
 ]
-#STATIC_ROOT = os.path.join(BASE_DIR, 'static/')  # 新增行
+# 设置收集静态资源的路径(仅部署时使用)
+STATIC_ROOT = os.path.join(BASE_DIR, 'collect_static/')
 #STATIC_ROOT = os.path.join(BASE_DIR, 'static/')  # 新增行
 
-
+print("-------static file config-------")
 #print(STATICFILES_DIRS)
 print(BASE_DIR)
-print(os.path.join(BASE_DIR, '/static/'))
+print(STATICFILES_DIRS)
+print(STATIC_ROOT)
 #print(STATIC_ROOT)
 
 CACHES={
