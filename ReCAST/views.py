@@ -667,6 +667,9 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     print("@@@@@@var_BufferStock@@@@@@")
     print(len(atp))
     print(var_BufferStock)
+
+    var_ReserveBuffer = reCAST.addVars(len(atp), vtype=GRB.INTEGER, name='Var_ReserverBufferStock')
+
     var_z = reCAST.addVars(len(atp), vtype=GRB.BINARY, name='useStockOrNot')
 
     # var_Allocation_ATP = reCAST.addVars(len(orders), len(atp), len(atp),lb = 0,
@@ -697,8 +700,10 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
                        var_Allocation_Stock.sum('*', '*', t - 1) == atp[t - 1]
                        for t in range(1, len(atp))), name='con_Buffer');
 
-    reCAST.addConstrs((var_Allocation_ATP.sum('*', '*', t) <= atp[t]
+    reCAST.addConstrs((var_Allocation_ATP.sum('*', '*', t) + var_ReserveBuffer[t] <= atp[t]
                        for t in range(len(atp))), name='con_Resources');
+
+    reCAST.addConstrs((var_ReserveBuffer[t] <= reserve_Buffer[t] for t in range(len(atp))), name='RBS_Goal');
 
     reCAST.addConstrs((var_Allocation_Stock.sum('*', '*', t) <= var_BufferStock[t]
                        for t in range(len(atp))), name='con_stock');
@@ -706,12 +711,12 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     reCAST.addConstrs((var_BufferStock[t] >= buffer_stock_min[t]
                        for t in range(len(atp))), name='con_buffer_stock_min');
 
-    reCAST.addConstr((var_Allocation_ATP.sum('*', '*', '*') >= sum(atp) - sum(reserve_Buffer))
-                     , name='con_reserve_buffer')
+    #reCAST.addConstr((var_Allocation_ATP.sum('*', '*', '*') >= sum(atp) - sum(reserve_Buffer))
+    #                 , name='con_reserve_buffer')
 
     ##### This constraint can make the model infeasible when sum(atp) - sum(reserve_Buffer) is bigger than
     ##### all orders which limit the value of allocation from ATP AQ
-    print('The Value for Checking infeasibility = '+str(sum(atp) - sum(reserve_Buffer)))
+    #print('The Value for Checking infeasibility = '+str(sum(atp) - sum(reserve_Buffer)))
 
     # reCAST.addConstrs((var_Allocation_Stock.sum(i,'*',t) - var_Allocation_Stock.sum(i,r,'*') == 0
     #                   for i in range(len(orders)) for t in range(len(atp)) for r in range(len(atp))),
@@ -740,8 +745,7 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
                 (var_Allocation_Stock[i, r, t]) * penalty_coef_Stock[r][t])
                               for t in range(len(atp)) for i in range(len(orders)) for r in range(len(atp)))
 
-    obj_ReserveStock = quicksum(- var_Allocation_ATP.sum('*', '*', t)
-                                for t in range(len(atp)))
+    obj_ReserveStock = quicksum(var_ReserveBuffer[t] for t in range(len(atp)))
 
     # try with multiobjective of Gurobi
     reCAST.Params.MIPGap = 1e-9  # -4 00
