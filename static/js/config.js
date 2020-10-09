@@ -1,7 +1,7 @@
 //variable upgrade
 //data = [],  container = document.getElementById('BS_table'), hot;
 var table_BS, hot_allow;
-var vaild_input_at_configPage = false;
+//var vaild_input_at_configPage = false;
 
 function setBSTableContent(rowname, value) {
     var row;
@@ -70,13 +70,17 @@ function listStringfy(list) {
     res_str += list[list.length-1]
     return res_str;
 }
-
-function pageSubmit(element) {
+/*
+function isRunnableInput() {
     if ( !vaild_input_at_configPage ){
         alert("Please check the RBS data at table firstly before generating results.")
-        return;
+        return false;
+    } else {
+        return true;
     }
+}*/
 
+function pageSubmit(element) {
     //var btn= document.getElementById('submit')
     var MBS_input= document.getElementById('MBS_input')
     var RBS_input= document.getElementById('RBS_input')
@@ -318,12 +322,20 @@ function checkRBS() {
         sum_CMAD += getArrSum(item)
     })
     var sum_threshold_value = sum_plantATP - sum_CMAD;
-    if (sum_RBS_list >= sum_threshold_value) {
-        vaild_input_at_configPage = false;
+    if (sum_RBS_list > sum_plantATP) {
         alert("Your input value for RBS is too big.");
     } else {
-        vaild_input_at_configPage = true;
-        alert("This is a applicable input.");
+        if (sum_RBS_list > sum_threshold_value) {
+            //vasum_thresholdild_input_at_configPage = false;
+            //print text here.
+            var printText = '*Note: If the sum of Reserve Buffer Stock is bigger than ' + (sum_threshold_value) + ' possibly ReCAST would not allocate product to all the CMADs.'
+            document.getElementById('threshold_text').innerText = printText;
+        } else {
+            //vaild_input_at_configPage = true;
+            //correct input
+            //document.getElementById('threshold_text').innerText = "";
+            alert("This is a applicable input.");
+        }
     }
     var sum_RBS_span = document.getElementById("sum_RBS")
     sum_RBS_span.innerText = sum_RBS_list;
