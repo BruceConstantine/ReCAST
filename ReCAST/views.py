@@ -79,18 +79,27 @@ def display(request):
 
 
 def createTask(request):
+    # This statement only for test.
+    return render(request, 'createTask.html')
+    #correct one should be this statement:
+    #__createTask(request);
+
+def __createTask(request):
     # This means the request must from a page rather than user'input or GET method HTTP request.
     #request.headers['type'] is string type.
     if request.headers.__contains__('Referer'):
         url_origin = request.headers['Referer']
+        print("url_origin = "+str(url_origin))
         if WebUtils.getRouter(url_origin) in ['index', 'config'] :
             return render(request, 'createTask.html')
         elif request.method == "POST":
+            print("createTask invoked by: POST, request.session['username'] = "+str(request.session['username']))
             return render(request, 'createTask.html') # ,{"data":[]} initialization
         #TODO: check here!
-        elif request.method == "GET" and request.session['username'] == None:
-            return HttpResponse(back_previews_page_html_str)
-
+        elif request.method == "GET":
+            print("createTask invoked by: GET, request.session['username'] = "+str(request.session['username']))
+            if request.session['username'] == None:
+                return HttpResponse(back_previews_page_html_str)
         #Check username
         #Check pid
         # whatever, must to let the system stay at one state no matter from back to forward or forward to back.

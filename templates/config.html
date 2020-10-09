@@ -100,7 +100,8 @@
             <div id="allow_table"  style="height:auto;overflow-x:scroll" >
                 <input id="allowTable_input" style="display: none;" name="bin_use_from_stock"/>
             </div>
-            <span>Note: each row is a seller/customer, and each coloumn is a time unit.</span>
+            <span>(rows for seller, coloumns for CWs)</span>
+            <span>*Note: Each cell at table must be 'yes' or 'no'. </span>
         </p>
         <br/><br/>
         <p>
@@ -117,7 +118,7 @@
         <button class="greenBtn"  type="button"><a href="/createTask/">Scenario Config</a></button>
         <button class="greenBtn"  type="button"><a href="/advOpt/">Advanced Option</a></button>
         <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
-        <input id="submit_btn" class="greenBtn" type="submit" onclick="pageSubmit(this)" value="Run " Run />
+        <input id="submit_btn" class="greenBtn" type="button" onclick="pageSubmit(this)" value="Run " Run />
     </form>
     </div>
 {% endblock btnBar %}

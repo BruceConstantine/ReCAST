@@ -80,6 +80,7 @@ function isRunnableInput() {
     }
 }*/
 
+
 function pageSubmit(element) {
     //var btn= document.getElementById('submit')
     var MBS_input= document.getElementById('MBS_input')
@@ -90,58 +91,79 @@ function pageSubmit(element) {
     MBS_input.value = listStringfy(MBSList)
     RBS_input.value = listStringfy(RBSList)
 
+    var problem_cells = []
     var allow_use_binary_list = [] // only 1 or 0
     var templist_Allow = hot_allow.getData()
     var i_max = templist_Allow.length, j_max = 0;
-    if(i_max>0)
+    if ( i_max > 0 ) {
         j_max = templist_Allow[0].length;
-        console.log("j_max="+j_max)
+        console.log("i_max=" + i_max);
+        console.log("j_max=" + j_max);
+    }
     for (var i_ = 0; i_ < i_max; i_++){
         var templist_Allow_aRow = new Array();
         for (var j_ = 0; j_ < j_max; j_++){
-            if (undefined == templist_Allow[i_][j_]){
-                console.log("i_,j_=")
-                console.log(i_,j_)
+           if (undefined == templist_Allow[i_][j_]){
+                console.log("i_="+i_+",j_="+j_);
                 console.log();
-            }
-           if ( (templist_Allow[i_][j_]).trim().toLowerCase() == 'yes'){
+           }
+           var cell_value = (templist_Allow[i_][j_]).trim().toLowerCase() ;
+           if ( cell_value == 'yes' ) {
                 templist_Allow_aRow.push(1);
            } else {
                 templist_Allow_aRow.push(0);
+                if ( cell_value != 'no'){
+                    problem_cells.push([i_,j_]);
+                }
            }
         }
         allow_use_binary_list.push(templist_Allow_aRow);
     }
-    var allowTable_input= document.getElementById('allowTable_input')
-    // Here is to test if a list of int [1,0,0,0,1,1...] can be send to server.
+    var isRunGurobi = true;
+    var pc_len = problem_cells.length;
+    if ( pc_len != 0 ) {
+        var problem_cells_index_str = "";
+        var index = 0;
+        for (var i = 0 ; i < pc_len; i++) {
+            var row_i = customerList_name[problem_cells[i][0]];
+            var col_j = CW_list[problem_cells[i][1]];
+            problem_cells_index_str += "["+row_i+", CW"+col_j+"]";
+        }
+        isRunGurobi = confirm("Please check the cell value at: " + problem_cells_index_str+"\n" + "any non-'yes' value shall be considered as 'no'."+"\n"+"Continue to run?");
+        alert("isRunGurobi="+isRunGurobi)
+    }
+    if (isRunGurobi) {
+        var allowTable_input= document.getElementById('allowTable_input')
+        // Here is to test if a list of int [1,0,0,0,1,1...] can be send to server.
 
-    //JSON.stringify can keep the origin structure of a int list [[1,1],[2,2]],
-    //rather than [1,1,2,2].
-    allowTable_input.value = JSON.stringify(allow_use_binary_list);
-    console.log(allowTable_input.value)
-    console.log("Before running")
-    /*
-    var url_post = ''
-    post((url_post, {"maxdelay":10,
-            "MBS":"",
-            "RBS":"",
-            "bin_use_from_stock":""
-            } ,function () {
-        //empty
-    }))
-    */
-    // window.location.href='/run/';
-    // $("#submit_btn").submit();
+        //JSON.stringify can keep the origin structure of a int list [[1,1],[2,2]],
+        //rather than [1,1,2,2].
+        allowTable_input.value = JSON.stringify(allow_use_binary_list);
+        console.log(allowTable_input.value)
+        console.log("Before running")
+        /*
+        var url_post = ''
+        post((url_post, {"maxdelay":10,
+                "MBS":"",
+                "RBS":"",
+                "bin_use_from_stock":""
+                } ,function () {
+            //empty
+        }))
+        */
+        // window.location.href='/run/';
+        // $("#submit_btn").submit();
 
-    /*Error! here!*/
-    __submit(element);
+        /*Error! here!*/
+        __submit(element);
 
-    /*Error! here!*/
-    //window.location.href='/run/';
+        /*Error! here!*/
+        //window.location.href='/run/';
 
-    //btn.click = '';
-    //btn.type = 'submit'
-    //btn.click()
+        //btn.click = '';
+        //btn.type = 'submit'
+        //btn.click()
+    }
 }
 
 //function initBStable_content(cw_start, cw_end) {}
