@@ -130,7 +130,7 @@ function pageSubmit(element) {
             problem_cells_index_str += "["+row_i+", CW"+col_j+"]";
         }
         isRunGurobi = confirm("Please check the cell value at: " + problem_cells_index_str+"\n" + "any non-'yes' value shall be considered as 'no'."+"\n"+"Continue to run?");
-        alert("isRunGurobi="+isRunGurobi)
+        //alert("isRunGurobi="+isRunGurobi)
     }
     if (isRunGurobi) {
         var allowTable_input= document.getElementById('allowTable_input')

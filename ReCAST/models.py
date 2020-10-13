@@ -38,6 +38,31 @@ class Task(models.Model):
     # Reference to Config table 使用ForeignKey扩展Task表
     cid = models.IntegerField(null=True) #ForeignKey(Config,on_delete=models.CASCADE, null=True)
 
+    def getDict(self):
+        return {
+            "tid": self.tid,
+            "taskName": self.taskName,
+            "taskDescription": self.taskDescription,
+            "date": self.date,
+            "currentPage": self.currentPage,
+            "username": self.username,
+            "pid": self.pid,
+            "CW_start": self.CW_start,
+            "CW_end": self.CW_end,
+            "enableRub": self.enableRub,
+            "plantATP": self.plantATP,
+            "ATP_NTA": self.ATP_NTA,
+            "maxDelay": self.maxDelay,
+            "packingUnit": self.packingUnit,
+
+            # The rid of result scenario. aka. Target allocation which selected by RLC's final decision
+            "TA_rid": self.TA_rid,
+            # Reference to Config table 使用ForeignKey扩展Task表
+            "cid": self.cid
+        };
+    def __str__(self):
+        return str( self.getDict() );
+
 class Customer_CMAD(models.Model):
     cid = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='cid')
     #reference to task id

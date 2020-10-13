@@ -18,15 +18,16 @@
         </div>
     </form>
     <hr/>
-    <span class="input_input_note">* Note: Tasks are sorted by datetime order </span>
+{#    <span class="input_input_note">* Note: Tasks are sorted by date time order </span>#}
 
         <br />
         <br />
         <br />
         <h3>Tasks List</h3>
         <br />
-    <div style="display: block; float: left">
-        <div class="history-nav-list">
+    <div style="display: block; float: left;">
+        <!-- Left side -->
+        <div class="history-nav-list"> <!-- width: 21%; left: auto; margin-left: 0; -->
         <br/><br/><br/>
             <ul>
                 <li>
@@ -40,6 +41,8 @@
                 </li>
             </ul>
         </div>
+
+        <!-- right side -->
         <div class="history-content" style="display: block;  width: 79%;">
 
           <form action="/details/" method="post" enctype="multipart/form-data">{% csrf_token %}
@@ -52,12 +55,36 @@
                     <br clear="both"/>
                 </li>
             -->
-            {% for task in tasklist %}
+{#            {% for task in task_ongoing_list %}#}
+{#                <!-- Ongoing Task -->#}
+{#                <!--li class="ongoing" style="display: block"-->#}
+{#                <li class="ongoing" style=" width: 80%;*zoom:1;overflow:hidden;display:inline-block;">#}
+{#                    <div style="float: left;margin: 15px;">#}
+{#                    <input class="checkbox" style="margin: 0;width: 32px" type="checkbox" value=""/><span>{{task.taskName}}</span>#}
+{#                    </div>#}
+{#                   <div style="float: left;text-align: left;margin: 40px 40px 40px 16px; width:40%;text-overflow: ellipsis;white-space:nowrap;">#}
+{#                       <!-- set CSS up at here: 12312dq21d12d12d12d12 222222222222222222222222222222  -->#}
+{#                        <span style="text-overflow: ellipsis;white-space:nowrap;">product ID: <b>{{task.pid}}</b></span> <br/>#}
+{#                        <span>Created on date: {{task.date}}</span><br/>#}
+{#                        <span>Task Description: {{task.taskDescription}}</span><br/>#}
+{#                    </div>#}
+{#                   <div style="float: right;margin: 40px">#}
+{#                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>#}
+{#                       <br/>#}
+{#                       <br/>#}
+{#                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>#}
+{#                    </div>#}
+{#                    <br clear="both"/>#}
+{#                    <br clear="both"/>#}
+{#                </li>#}
+{#            {% endfor %}#}
+{#            #}
+            {% for task in task_ongoing_list%}
                 <!-- Ongoing Task -->
                 <!--li class="ongoing" style="display: block"-->
-                <li class="ongoing" style=" display:inline;*zoom:1;overflow:hidden;display:inline-block;">
+                <li class="ongoing" style=" *zoom:1;overflow:hidden;display:inline-block; width: 80%;">
                     <div style="float: left;margin: 15px;">
-                    <input style="margin: 0;width: 32px" type="checkbox"/><span>{{task.taskName}}</span>
+                    <input class="checkbox" style="margin: 0;width: 32px" type="checkbox" value=""/><span>{{task.taskName}}</span>
                     </div>
                    <div style="float: left;text-align: left;margin: 40px 40px 40px 16px; width:40%;text-overflow: ellipsis;white-space:nowrap;">
                        <!-- set CSS up at here: 12312dq21d12d12d12d12 222222222222222222222222222222  -->
@@ -65,11 +92,34 @@
                         <span>Created on date: {{task.date}}</span><br/>
                         <span>Task Description: {{task.taskDescription}}</span><br/>
                     </div>
-                   <div style="float: right;margin: 40px">
-                        <button type="submit" class="greenBtn btnAtList" style="margin:0" onclick="" >View Details</button>
+                   <div style="float: right;min-width:15%; ">
+                       <button type="button" class="greenBtn btnAtList" style="margin:0" onclick="view_details(this,{{task.tid}})" >View Details</button>
                        <br/>
                        <br/>
-                        <button class="greenBtn btnAtList" style="margin:0" onclick="" >Delete</button>
+                       <button type="button" class="greenBtn btnAtList" style="margin:0" onclick="delete_task(this,{{task.tid}})" >Delete</button>
+                    </div>
+                    <br clear="both"/>
+                    <br clear="both"/>
+                </li>
+            {% endfor %}
+            {% for task in task_finished_list%}
+                <!-- Ongoing Task -->
+                <!--li class="ongoing" style="display: block"-->
+                <li class="finished" style=" *zoom:1;overflow:hidden;display:inline-block; width: 80%;">
+                    <div style="float: left;margin: 15px;">
+                    <input class="checkbox" style="margin: 0;width: 32px" type="checkbox" value=""/><span>{{task.taskName}}</span>
+                    </div>
+                   <div style="float: left;text-align: left;margin: 40px 40px 40px 16px; width:40%;text-overflow: ellipsis;white-space:nowrap;">
+                       <!-- set CSS up at here: 12312dq21d12d12d12d12 222222222222222222222222222222  -->
+                        <span style="text-overflow: ellipsis;white-space:nowrap;">product ID: <b>{{task.pid}}</b></span> <br/>
+                        <span>Created on date: {{task.date}}</span><br/>
+                        <span>Task Description: {{task.taskDescription}}</span><br/>
+                    </div>
+                   <div style="float: right;min-width:15%; ">
+                       <button type="button" class="greenBtn btnAtList" style="margin:0" onclick="view_details(this,{{task.tid}})" >View Details</button>
+                       <br/>
+                       <br/>
+                       <button type="button" class="greenBtn btnAtList" style="margin:0" onclick="delete_task(this,{{task.tid}})" >Delete</button>
                     </div>
                     <br clear="both"/>
                     <br clear="both"/>
@@ -182,6 +232,8 @@
         </div>
         <div style="clear:both;"></div>
     </div>
+
+    <div style="clear:both; height:0; overflow:hidden;"> </div>
     <div>
         <!-- Scenario 控件在这里制作 -->
 
@@ -192,9 +244,10 @@
 {# part 4.list of button options #}
 {% block btnBar %}
     <br/>
+
     <div class="btnBar_index">
         <a href="/index/"><button type="button" class="greenBtn">Back to Index</button></a>
-        <a href="/downloadManual/"><button type="button" class="greenBtn">Batch Delete</button></a>
+        <button type="button" onclick="batch_delete(this)" class="greenBtn">Batch Delete</button>
     </div>
     <br/>
 <!--div class="btn_footer_placeholder_index">

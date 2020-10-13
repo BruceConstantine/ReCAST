@@ -34,7 +34,9 @@
     {%if request.path in navbar_paths %}
     <ul class="ul_nav">
         {%if request.path in options_paths %}
-            <li class="ul_nav_li task-li"><a href="#">Task:<br/><span id="nav_taskname">TestTask</span></a></li>
+{#            changed the titile...... #}
+{#            <li class="ul_nav_li task-li"><a href="#">Task:<br/><span id="nav_taskname">TestTask</span></a></li>#}
+            <li class="ul_nav_li task-li"> Menu <br/> Option</li>
             <li class="ul_nav_li">
                 <a href="#">Options</a>
                 <ul class="ul_opt">
@@ -77,7 +79,12 @@
 
 
 </div>
+
+
 </body>
+
+
+<div id="cleaner-div" style="clear:both; height:0; overflow:hidden;"> </div>
 
 {# part 5.webpage fotter -> No Change #}
 <footer>

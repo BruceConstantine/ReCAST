@@ -1,5 +1,27 @@
 var targetBtn = null;
 
+function batch_delete(element){
+    /*get checkbox list*/
+    var checkbox_list = [...document.getElementsByClassName('checkbox')];
+    var checked_list = [];
+    checkbox_list.forEach(function (item) {
+        if (item.checked == true) {
+            checked_list.push(item);
+        }
+    })
+    console.log(checked_list);
+
+    if (checked_list.length == 0) {
+        alert("Please tick task checkboxs before delete in batches.");
+    } else {
+        alert("Function not Open, Coming Soon...");
+
+        //window.location.href = '/delete/';
+        //OR:
+        //AJAX here
+        //__submit(element);
+    }
+}
 
 window.onload = function () {
 
@@ -28,39 +50,61 @@ window.onload = function () {
                 lastSelectedBtn = item;
             } else if (lastSelectedBtn == item) {
             //If the button is selected now, then user click again, button remove the added style.
-                lastSelectedBtn.classList.remove("gbtn-selectable");
-                lastSelectedBtn = null;
+                //lastSelectedBtn.classList.remove("gbtn-selectable");
+                //lastSelectedBtn = null;
             }
-        }
-    })
+        };
+    });
 
     //targetScenario
 }
+
+function view_details(DOMelement, tid) {
+　　var input = document.createElement("input");
+　　input.setAttribute("type","text")
+　　input.setAttribute("name","tid") ;
+　　input.setAttribute("value", tid) ;
+　　input.setAttribute("style", "display:none;") ;
+　　var parentNode = DOMelement.parentElement;
+    parentNode.appendChild(input);
+    __submit(DOMelement);
+　　parentNode.removeChild(input);
+}
+
+function delete_task(DOMelement, tid) {
+    alert("Funtion not Open, Coming Soon...")
+　　//set AJAX call, unless set another <form>
+}
+
 function display(msg) {
     var finishedList = [...document.getElementsByClassName('finished')]
     var ongoingList  = [...document.getElementsByClassName('ongoing')]
     if (msg=='Finished Task'){      // display Finished
         ongoingList.forEach(function (item) {
             item.style.display = 'none';
-        })
+        });
         finishedList.forEach(function (item) {
             item.style.display = 'block';
-        })
+            item.style.float = 'left';
+        });
     }
     else if (msg=='Ongoing Task'){
         ongoingList.forEach(function (item) {
             item.style.display = 'block';
-        })
+            item.style.float = 'left';
+        });
         finishedList.forEach(function (item) {
             item.style.display = 'none';
-        })
+        });
     }
     else if (msg=='All Task'){
         ongoingList.forEach(function (item) {
             item.style.display = 'block';
+            item.style.float = 'left';
         })
         finishedList.forEach(function (item) {
             item.style.display = 'block';
+            item.style.float = 'left';
         })
     }
 }

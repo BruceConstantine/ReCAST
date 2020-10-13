@@ -44,10 +44,10 @@ def index(request):
                 request.session['username'] = uname;
                 return render(request, 'index.html')
             else: #nothing changed and return to login page.
-                return render(request, 'login.html', {'msg': "Password not correct" })
+                return render(request, 'login.html', {'msg': "Password not correct"})
         else: # if user not exist
             # Refactor: return render(request, 'login.html', {"msg": user is not registered})
-            return render(request, 'login.html',{'msg':"Username not exist"})
+            return render(request, 'login.html', {'msg': "Username not exist"})
         # Generally 'login function' can not be implemented by GET.
         #elif request.method == 'GET' or others
         return render(request, 'login.html')
@@ -331,10 +331,12 @@ def config(request):
    #     return render(request, '403.html')
 
 def run(request):
+    task = WebUtils.getTaskAtSession(request);
     #Here we have problem for: access ReCAST running GUrobi at page config.html
-    if request.method == "POST" or request.method == "GET":
-    #if request.method == "POST":
-        task = WebUtils.getTaskAtSession(request)
+    if request.method == "GET":
+        #do nothing, as POST has done previously.
+        pass;
+    elif request.method == "POST":
         task["maxDelay"] = request.POST.get('maxdelay')
         # what type of task["MBS"] is ? a big string.
         """
@@ -342,9 +344,18 @@ def run(request):
         task["bin_use_from_stock"] =  json.loads(request.GET.get('bin_use_from_stock'))
         task["RBS"] =request.GET.get('RBS')
         """
-        task["MBS"] =request.POST.get('MBS')
-        task["bin_use_from_stock"] =  json.loads(request.POST.get('bin_use_from_stock'))
-        task["RBS"] =request.POST.get('RBS')
+        task["RBS"] =request.POST.get('RBS');
+        task["MBS"] =request.POST.get('MBS');
+
+        bin_use_from_stock_list = json.loads(request.POST.get('bin_use_from_stock'));
+        ''' #json.loads() will take the str as the list of int list.
+        print(" request.POST.get('bin_use_from_stock') = " + str( bin_use_from_stock ));
+        print(" typeof('bin_use_from_stock') = " + str( type(bin_use_from_stock )) );
+        print(" typeof('bin_use_from_stock') = " + str( type(bin_use_from_stock[0] )) );
+        print(" typeof('bin_use_from_stock') = " + str( type(bin_use_from_stock[0][0] )) );
+        '''
+        task["bin_use_from_stock"] =  bin_use_from_stock_list;
+
         request.session["task"]=task;
         print(task)
         print('request.session["username"]=')
@@ -353,24 +364,23 @@ def run(request):
         #dl=json.dumps(resultlist)
     datalist = [[93, 93, 0, 100.01], [20, 23, 26, 29]]
     dl=json.dumps(datalist)
-    taskDict = WebUtils.getTaskAtSession(request)
     #customerList = run_gurobi(abs_filename=request.session["filename_upload"],
     print("before run Gurobi:"+str(request.session["customerList"]))
     try:
-        scenarioList_objList = run_gurobi(abs_filename=request.session["filename_upload"],
-                                  CW_start=taskDict['CW_start'],
-                                  CW_end=taskDict['CW_end'],
-                                  CW_start_date=None,CW_end_date=None,
-                                  packingUnit_in=taskDict["packingUnit"],
-                                  MBS_in=taskDict["MBS"],RBS_in=taskDict["RBS"],
-                                  plantATP_in=taskDict["plantATP"],
-                                  ComfirmedOrder_in=request.session["customerList"],
+        scenarioList_objList = run_gurobi(abs_filename = request.session["filename_upload"],
+                                  CW_start = task['CW_start'],
+                                  CW_end   = task['CW_end'],
+                                  CW_start_date = None, CW_end_date = None,
+                                  packingUnit_in= task["packingUnit"],
+                                  MBS_in = task["MBS"], RBS_in = task["RBS"],
+                                  plantATP_in = task["plantATP"],
+                                  ComfirmedOrder_in = request.session["customerList"],
                                   #ComfirmedOrder_in=request.session["origin_CMAD_order"],
-                                  bin_usefrom_stock_in=taskDict["bin_use_from_stock"],
-                                  ATP_NTA_in=int(taskDict["ATP_NTA"]),
-                                  scenarioList_in=taskDict["scenarioList"],
-                                  maxDelay_in=taskDict["maxDelay"],
-                                  date_list_in=request.session['date_list']
+                                  bin_usefrom_stock_in = task["bin_use_from_stock"],
+                                  ATP_NTA_in = int(task["ATP_NTA"]),
+                                  scenarioList_in = task["scenarioList"],
+                                  maxDelay_in = task["maxDelay"],
+                                  date_list_in = request.session['date_list']
                               )
     except :
         scenarioList_objList = None;
@@ -389,8 +399,8 @@ def run(request):
     '''
     return render(request, 'result.html',{
                     'CW_list':request.session['CW_list'],
-                    'plantATP':json.dumps(taskDict["plantATP"]),
-                    'ATP_NTA':json.dumps(taskDict["ATP_NTA"]), #a row rather than ATP_NTA vlaue,
+                    'plantATP':json.dumps(task["plantATP"]),
+                    'ATP_NTA':json.dumps(task["ATP_NTA"]), #a row rather than ATP_NTA vlaue,
                     'origin_CMAD_order': request.session["origin_CMAD_order"],
                     'scenarioList_objList': scenarioList_objList,
                     # 'customerNameList':json.dumps(Scenario.customerNameList),
@@ -1055,29 +1065,7 @@ def modify(request):
                     'customerNameList' : Scenario.customerNameList,
                     'customerList':json.dumps(selected_customerList) })
 
-
-def details(request):
-    cid = request.POST.get('cid')
-    if None == cid:
-        pid = ''
-    else:
-        cid = cid.strip()
-    # Query
-    targetTasks = Taskmodel.objects.filter(cid=cid)
-    #as cid is primary key, thus can sure that:
-    # one and only one queried object must be returned.
-    task = targetTasks[0]
-    # process data to render at the frontend
-    task = task.__dict__
-    if task['TA_rid'] == None:
-        task["TA_rid"] = 'Ongoing: No senario exported'
-    else:
-        task["TA_rid"] = 'Finished: Senario No.' + str(task["TA_rid"]) + ' has exported'
-    print(task)
-    return render(request, 'details.html', {'task': task})
-
 def export(request):
-
     selected_scenario_index = int(request.POST.get("selected_scenario_index"))
     print("selected_scenario_index:"+str(selected_scenario_index))
     customer_list = request.session['scenarioList_objList'][selected_scenario_index]['customerList'];
@@ -1110,14 +1098,54 @@ def export(request):
 
 def viewHistory(request):
     tasklist_all_list = []
+    task_ongoing_list = []
+    task_finished_list = []
     tasklist_all = Taskmodel.objects.all()
     # print(tasklist_all.__dict__) 不适用->因为.__dict__不是返回数据
     for eachtask in tasklist_all:
         #task = Task.copy(eachtask)
         #print(task.getDict())
-        tasklist_all_list.append(eachtask.__dict__)
-        print(eachtask.__dict__)
-    return render(request, 'histroy.html',{'tasklist':tasklist_all_list })
+        dict_task = eachtask.getDict();
+        tasklist_all_list.append(dict_task)
+        # if task not finished, TA_rid shall not be assigned as a number, ranther is None.
+        if dict_task["TA_rid"] == None:
+            task_ongoing_list.append(dict_task);
+        #if task finished
+        elif type(dict_task["TA_rid"]) is type(0):
+            task_finished_list.append(dict_task);
+    return render(request, 'histroy.html',{
+        'tasklist':tasklist_all_list,
+        'task_finished_list':task_finished_list,
+        'task_ongoing_list':task_ongoing_list
+    });
+
+
+def details(request):
+    targetTasks = [];
+    tid = request.POST.get('tid');
+    if tid != None :
+        tid = tid.strip()
+        # Query
+        targetTasks = Taskmodel.objects.filter(tid=tid)
+    else:
+        cid = request.POST.get('cid')
+        if None == cid:
+            pid = ''
+        else:
+            cid = cid.strip()
+        # Query
+        targetTasks = Taskmodel.objects.filter(cid=cid)
+        #as cid is primary key, thus can sure that:
+        # one and only one queried object must be returned.
+    task = targetTasks[0]
+    # process data to render at the frontend
+    task = task.__dict__
+    if task['TA_rid'] == None:
+        task["TA_rid"] = 'Ongoing: No senario exported'
+    else:
+        task["TA_rid"] = 'Finished: Senario No.' + str(task["TA_rid"]) + ' has exported'
+    print(task)
+    return render(request, 'details.html', {'task': task})
 
 # model to dict by reflection
 # def props_with_(obj):

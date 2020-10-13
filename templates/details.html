@@ -10,7 +10,7 @@
 
 
 {% block pageContent %}
-<script type="application/javascript" src="/static/js/result.js"></script>
+<script type="application/javascript" src="/static/js/details.js"></script>
     <div class="wrapper">
     <form id="form" action="/export/" method="post" enctype="multipart/form-data">{% csrf_token %}
         <br/>
@@ -41,8 +41,9 @@
                     <div id="sce-tab-2" border="1">   </div>
                 </div>
                 <div >
-                    <button class="greenBtn btnAtList select-scen-btn"  type="button">Select Scenario</button>
-                    <button class="greenBtn btnAtList" type="button"><a href="/modify/">Modify Scenario</a></button>
+                    <button type="button" class="greenBtn btnAtList"  onclick="restore(this,{{task.tid}})" >Restore</button>
+{#                    <button class="greenBtn btnAtList select-scen-btn"  type="button">Select </button>#}
+{#                    <button class="greenBtn btnAtList" type="button"><a href="/modify/">Modify Scenario</a></button>#}
                 </div>
                 <div style="clear: both"></div>
             </div><br/>
@@ -54,8 +55,9 @@
         <!-- TODO: Keep cache of user's input when back to previous page -->
         <a href="/viewHistory/"><button class="greenBtn" type="button">History List</button></a>
         <!--If user needs export the TA as an Excel again like before? -> No need, they can restore it firstly and then export it again.-->
-        <a href="/delete/"><button class="greenBtn" type="button">Delete Task</button></a>
-        <a href="/restore/"><button class="greenBtn" type="button">Restore This</button></a>
+{#        <a href="/delete/"><button class="greenBtn" type="button">Delete Task</button></a>#}
+        <button type="button" class="greenBtn"  onclick="delete_task(this,{{task.tid}})" >Delete</button>
+{#        <a href="/restore/"><button class="greenBtn" type="button">Restore This</button></a>#}
     </form>
     </div>
 {% endblock btnBar %}
