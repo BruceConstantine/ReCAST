@@ -78,7 +78,8 @@
         <button class="greenBtn" type="button" ><a href="#">Confirm Modify</a></button>
 {#        <button class="greenBtn" type="button" ><a href="/update/">Confirm Modify</a></button>#}
         <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
-        <input class="greenBtn" type="submit" value="Export" />
+{#        <input class="greenBtn" type="submit" value="Export" />#}
+        <input class="greenBtn" type="button" onclick="alert('Please Export at Result Page.')" value="Export" />
     </div>
     </form>
 {% endblock btnBar %}

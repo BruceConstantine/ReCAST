@@ -643,11 +643,11 @@ hr{
   width: 220px;
 }
 .history-content{
-  /*border: #a1a1a1 1px solid;*/
+  /* border: #a1a1a1 1px solid;*/
   min-height: 550px;
   min-width: 64%;
-  float: left;
-  margin-left: 30px  ;
+  float: right;
+  /* margin-left: 20px  ;*/
   text-align: center;
 }
 .history-content button{

@@ -77,20 +77,20 @@ function delete_task(DOMelement, tid) {
 }
 
 function display(msg) {
-    var finishedList = [...document.getElementsByClassName('finished')]
-    var ongoingList  = [...document.getElementsByClassName('ongoing')]
+    var finishedList = [...document.getElementsByClassName('finished')];
+    var ongoingList  = [...document.getElementsByClassName('ongoing')];
     if (msg=='Finished Task'){      // display Finished
         ongoingList.forEach(function (item) {
             item.style.display = 'none';
         });
         finishedList.forEach(function (item) {
-            item.style.display = 'block';
+            item.style.display = 'inline-block';
             item.style.float = 'left';
         });
     }
     else if (msg=='Ongoing Task'){
         ongoingList.forEach(function (item) {
-            item.style.display = 'block';
+            item.style.display = 'inline-block';
             item.style.float = 'left';
         });
         finishedList.forEach(function (item) {
@@ -99,13 +99,13 @@ function display(msg) {
     }
     else if (msg=='All Task'){
         ongoingList.forEach(function (item) {
-            item.style.display = 'block';
+            item.style.display = 'inline-block';
             item.style.float = 'left';
-        })
+        });
         finishedList.forEach(function (item) {
-            item.style.display = 'block';
+            item.style.display = 'inline-block';
             item.style.float = 'left';
-        })
+        });
     }
 }
 
