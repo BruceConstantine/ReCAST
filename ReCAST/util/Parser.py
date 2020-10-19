@@ -146,9 +146,9 @@ class Parser():
     #here: the value: cw_start, cw_end and length of CW should be considered for selecting time horzion
     #note: date_list here is ready to used.
     @staticmethod
-    def parse2_export_file(path, filename, customer_list, customername_list,len_cw, cw_start, product_SP, date_list, start_index, end_index ):
+    def parse2_export_file(path, filename, customer_list, customername_list,len_cw, cw_start, product_SP, date_list, cw_list ):
         #callback
-        def __changedContent( ws, customer_list, customername_list,len_cw, cw_start, product_SP, date_list ):
+        def __changedContent( ws, customer_list, customername_list,len_cw, cw_start, product_SP, date_list , cw_list):
             #TODO: may be need to changed here, the length of cw.
             #print CW list on the forth line
             #range_max = 1+len_cw
@@ -156,7 +156,7 @@ class Parser():
             print(range_max)
             print("len(date_list)="+str(len(date_list)))
             for i in range(range_max):
-               ws.write(3, 3+i, 'CW' + str(cw_start+i))
+               ws.write(3, 3+i, 'CW' + str(cw_list[i]))
                ws.write(4, 3+i, date_list[i])
             #initiate row\col for print out result.
             row = 5;
@@ -230,7 +230,7 @@ class Parser():
         '''
         print("customer_list--="+str(customer_list))
         #callback
-        __changedContent( ws, customer_list, customername_list,len_cw, cw_start, product_SP, date_list );
+        __changedContent( ws, customer_list, customername_list,len_cw, cw_start, product_SP, date_list, cw_list);
 
         #path = '/static/excel/temp/'
         #filename -> RLCusername + Timestamp

@@ -49,12 +49,12 @@ window.onload = function () {
 
     var CMAD_in_table = CMAD_insert_space_precessing(customerList_CMAD)
 
-    l = CW_end - CW_start;
+    l = CW_list.length;
     firstRow  = [];
     //secondRow = [];
     thirdRow  = [];
-    for(var i = 0; i <= l ; i++) {
-        firstRow.push('CW'+(CW_start+i), '', '');
+    for(var i = 0; i < l ; i++) {
+        firstRow.push('CW'+(CW_list[i]), '', '');
         //secondRow is plantATP
         thirdRow.push('AATP','A-Stock','Sum');
     }
@@ -140,8 +140,9 @@ window.onload = function () {
             },
             type: 'category',
             boundaryGap: false,
-            data: function() {
-                var list = [];
+            data: CW_list
+                /*function() {
+                var list = [];*/
                 /*
                 for (var i = 10; i < 18; i++) {
                     if (i <= 12) {
@@ -150,13 +151,13 @@ window.onload = function () {
                         list.push('2017-' + (i - 12) + '-01');
                     }
                 }
-                */
+                */ /*
                 //for (var i = 0; i<=52; i++){
                 for (var i = CW_start; i<=CW_end; i++){
                   list.push(i)
                 }
                 return list;
-            }()
+            }()*/
         }],
         yAxis: [{
             type: 'value',

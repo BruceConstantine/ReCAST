@@ -242,7 +242,7 @@ window.onload = function () {
             if ( lastSelectedBtn != item ){
                 item.classList.add("gbtn-selectable");
                 if (lastSelectedBtn!=null){
-                    lastSelectedBtn.classList.remove("gbtn-selectable")
+                    lastSelectedBtn.classList.remove("gbtn-selectable");
                 }
                 targetScenario = getTargetScenario(item);
                 lastSelectedBtn = item;
@@ -320,6 +320,16 @@ window.onload = function () {
 
     }
 
+}
+
+function page_submit(element){
+    var selectedBtn = [...document.getElementsByClassName('gbtn-selectable')];
+    alert(selectedBtn.length)
+    if (selectedBtn.length == 1){
+        __submit(element);
+    } else {
+        alert("Please select a scenario that you want to export firstly.")
+    }
 }
 
 

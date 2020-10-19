@@ -10,8 +10,9 @@
 
 {% block pageContent %}
 <script>
-    var CW_start = {{ CW_start|safe }}
-    var CW_end   = {{ CW_end  |safe }}
+    var CW_list   = {{ CW_list | safe }};
+    var CW_start = CW_list[0];
+    var CW_end   = CW_list[CW_list.length-1];
     var plantATP = eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
     var ATP_NTA  = eval('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
     var customerObjList = eval('{{  customerList }}'.replace(/&quot;/g,"'"))

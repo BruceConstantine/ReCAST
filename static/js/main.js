@@ -29,8 +29,12 @@ function basePath(){
 	return basePath;
 }
 function  logout(){
-    var isSaved = confirm("Are you confirm to log out ReCAST?");
-    window.location='/logout/';
+    var logout = confirm("Are you confirm to log out ReCAST?");
+    if (logout == false) {
+        //do nothing
+    } else {
+        window.location='/logout/';
+    }
 }
 
 function help() {
@@ -39,16 +43,23 @@ function help() {
 
 function saveTask() {
     var isSaved = confirm("Do you want to save task?")
-
+    
 }
 
 function discardTask() {
-    var isSaved = confirm("Do you want to discard the task?\n(Data will be not be recorded in Database.)")
-
+    var discard = confirm("Do you want to discard the task?\n(Data will be not be recorded in Database.)")
+    if (discard == false) {
+        //do nothing
+    } else {
+        window.location='/index/';
+    }
 }
 
 function quitTask() {
+    alert("Task Quit.(No thing changed.)")
+    /*
     var isSaved = confirm("Do you want to quit the task?\n(Nothing changed.)")
+    */
     window.location='/index/'
 }
 

@@ -187,7 +187,7 @@ def config(request):
         #request.session['CW_list'] = generateCWList(cw_list_origin, CW_start, CW_end);
         cw_select = Algo.select_cw_arr(CW_start, CW_end,cw_list_origin);
         #request.session['CW_select'] = cw_select
-        request.session['CW_list'] = cw_select.getSelectedArr();
+        request.session["CW_list"] = cw_select.getSelectedArr();
         request.session['CW_len'] = len(request.session['CW_list']);
 
         request.session['CW_start']  = cw_select.firstElement();
@@ -464,8 +464,8 @@ def run_gurobi( abs_filename=None, # filename for excel on disk (Not memory-> re
     '''181218_TASUI extract_SP000646194.xls'''
 
 
-    # extract CW
-    CW_list = [i for i in range(CW_start, CW_end)]
+    # extract CW --> Error. todo delete.
+    #CW_list = [i for i in range(CW_start, CW_end)]
 
     # extract Date
     #date_list = lambda d_from, d_to: [d_from, d_to]
@@ -1061,43 +1061,49 @@ def modify(request):
     selected_scenario = scenarioList_objList[scenario_index];
     selected_customerList = selected_scenario['customerList'];
     print(selected_scenario)
-    return render(request, 'modify.html', {'CW_start':taskDict['CW_start'],
-                    'CW_end':taskDict['CW_end'],
+    return render(request, 'modify.html', {"CW_list" : request.session['CW_list'],
                     'plantATP':json.dumps(taskDict["plantATP"]),
                     'ATP_NTA':json.dumps(taskDict["ATP_NTA"]), #[0],
                     'customerNameList' : Scenario.customerNameList,
                     'customerList':json.dumps(selected_customerList) })
 
 def export(request):
-    selected_scenario_index = int(request.POST.get("selected_scenario_index"))
-    print("selected_scenario_index:"+str(selected_scenario_index))
-    customer_list = request.session['scenarioList_objList'][selected_scenario_index]['customerList'];
-    basedir = os.path.dirname(__file__)
-    filename = 'Allocation_Template.xlsx'
-    path = basedir ;
-    path += "/static/excel/";
-    #path += "/static/excel/";
+    selected_scenario_index__POST = request.POST.get("selected_scenario_index");
+    if selected_scenario_index__POST == '' or selected_scenario_index__POST == None:
+        return HttpResponse(back_previews_page_html_str_with_alert(
+            "Please select a scenario before export!"));
+        pass;
+    else:
+        selected_scenario_index = int(selected_scenario_index__POST)
+        print("selected_scenario_index:"+str(selected_scenario_index))
+        customer_list = request.session['scenarioList_objList'][selected_scenario_index]['customerList'];
+        basedir = os.path.dirname(__file__)
+        filename = 'Allocation_Template.xlsx'
+        path = basedir ;
+        path += "/static/excel/";
+        #path += "/static/excel/";
 
-    print('request.session["date_list"]='+str(request.session["date_list"]))
+        print('request.session["date_list"]='+str(request.session["date_list"]))
 
-    targetFilePath = Parser.parse2_export_file(path=path, filename=filename,
-                                               customer_list = customer_list,
-                                               customername_list = Scenario.customerNameList,
-                                               len_cw = request.session['CW_len'],
-                                               cw_start = request.session['CW_start'],
-                                               product_SP = request.session['pid'],
-                                               date_list = request.session["date_list"],
-                                               start_index = request.session['CW_start_index'],
-                                               end_index = request.session['CW_end_index'])
+        targetFilePath = Parser.parse2_export_file(path=path, filename=filename,
+                                                   customer_list = customer_list,
+                                                   customername_list = Scenario.customerNameList,
+                                                   len_cw = request.session['CW_len'],
+                                                   cw_start = request.session['CW_start'],
+                                                   product_SP = request.session['pid'],
+                                                   date_list = request.session["date_list"],
+                                                   #start_index = request.session['CW_start_index'],
+                                                   #end_index = request.session['CW_end_index']
+                                                   cw_list = request.session["CW_list"])
 
-    # Test
-    print(targetFilePath);
+        # Test
+        print(targetFilePath);
 
-    file = open(targetFilePath, 'rb')
-    response = FileResponse(file)
-    response['Content-Type'] = 'application/octet-stream'
-    response['Content-Disposition'] = 'attachment;filename="Allocation_Template.xls"'
-    return response
+        file = open(targetFilePath, 'rb')
+        response = FileResponse(file)
+        response['Content-Type'] = 'application/octet-stream'
+        response['Content-Disposition'] = 'attachment;filename="Allocation_Template.xls"'
+        return response
 
 def viewHistory(request):
     tasklist_all_list = []
