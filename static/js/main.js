@@ -42,7 +42,7 @@ function help() {
 }
 
 function saveTask() {
-    var isSaved = confirm("Do you want to save task?")
+    var isSaved = confirm("Do you want to save task?");
     
 }
 
@@ -56,11 +56,11 @@ function discardTask() {
 }
 
 function quitTask() {
-    alert("Task Quit.(No thing changed.)")
+    alert("Task Quit.(No thing changed.)");
     /*
     var isSaved = confirm("Do you want to quit the task?\n(Nothing changed.)")
     */
-    window.location='/index/'
+    window.location='/index/';
 }
 
 function getCookie(name) {
