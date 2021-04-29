@@ -42,8 +42,8 @@ print(__hash("123"))
 # 2- The results calculate for each loops (based on scenarios). [refer to @zhikang comment].
 #    you should read the values in each loop and store them according to you code.
 # This is just a sample creation for model. It load an excel file frol local system.
-##df = pd.read_excel(io='../181218_TASUI extract_SP000646194.xls', header=None,
-#                 skiprows=2, usecols="I:BE")  # H:BF manualy added
+df = pd.read_excel(io='../181218_AMUI extract_SP000646194.xls', header=None,
+                 skiprows=2, usecols="I:BE")  # H:BF manualy added
 
 df_main = df.iloc[[1, 11, 14, 21]]
 # extract CW
