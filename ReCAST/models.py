@@ -1,11 +1,6 @@
 from django.db import models
 # Create your models here.
 
-class Config(models.Model):
-    MBS = models.TextField(null=True)   # Min. Buffer Stock Stringfied value: '100000,1000,...'
-    RBS = models.TextField(null=True)   # Reserved. Buffer Stock Stringfied value: '100000,1000,...'
-    PGL = models.TextField(null=True)   # Possible Loss or Gain Stringfied value: '100000,1000,...'
-    VulATP = models.TextField(null=True)   # VulnerableATP (if applied) Stringfied value: 'True,False,...'
 
 class Task(models.Model):
     tid = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='tid')
@@ -63,10 +58,17 @@ class Task(models.Model):
     def __str__(self):
         return str( self.getDict() );
 
+class Config(models.Model):
+    cid = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='config id')
+    MBS = models.TextField(null=True)   # Min. Buffer Stock Stringfied value: '100000,1000,...'
+    RBS = models.TextField(null=True)   # Reserved. Buffer Stock Stringfied value: '100000,1000,...'
+    PGL = models.TextField(null=True)   # Possible Loss or Gain Stringfied value: '100000,1000,...'
+    VulATP = models.TextField(null=True)   # VulnerableATP (if applied) Stringfied value: 'True,False,...'
+
 class Customer_CMAD(models.Model):
-    cid = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='cid')
-    #reference to task id
-    tid = models.IntegerField() #ForeignKey(Task.tid,on_delete=models.CASCADE)
+    cmad_id = models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='CMAD records id') #Primary key
+    #reference to Config id
+    cid = models.IntegerField(null=True, verbose_name='Config id') #ForeignKey(Config.cid,on_delete=models.CASCADE)
     #Not Nullable as name is essential
     customerName = models.CharField(max_length=32)
     #Allowance of Using ATP 'True,False,...'

@@ -43,7 +43,7 @@
         </div>
 
         <!-- right side -->
-        <div class="history-content" style="display: block;  width: 79%;">
+        <div class="history-content" style="display: block; float: right; width: 79%;">
 
           <form action="/details/" method="post" enctype="multipart/form-data">{% csrf_token %}
 
@@ -82,7 +82,7 @@
             {% for task in task_ongoing_list%}
                 <!-- Ongoing Task -->
                 <!--li class="ongoing" style="display: block"-->
-                <li class="ongoing" style=" *zoom:1;overflow:hidden;display:inline-block; width: 80%;">
+                <li class="ongoing" style=" *zoom:1;overflow:hidden;display:inline-block; width: 100%;">
                     <div style="float: left;margin: 15px;">
                     <input class="checkbox" style="margin: 0;width: 32px" type="checkbox" value=""/><span>{{task.taskName}}</span>
                     </div>
@@ -105,7 +105,7 @@
             {% for task in task_finished_list%}
                 <!-- Ongoing Task -->
                 <!--li class="ongoing" style="display: block"-->
-                <li class="finished" style=" *zoom:1;overflow:hidden;display:inline-block; width: 80%;">
+                <li class="finished" style=" *zoom:1;overflow:hidden;display:inline-block; width: 100%;">
                     <div style="float: left;margin: 15px;">
                     <input class="checkbox" style="margin: 0;width: 32px" type="checkbox" value=""/><span>{{task.taskName}}</span>
                     </div>

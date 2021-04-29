@@ -130,7 +130,7 @@ window.onload = function () {
                     color='#'
                     for (var i = 0 ; i < 6; i++) {
                         color_bit = parseInt(Math.random()*100%16)
-                        color += colorDict[color_bit]
+                        color += colorDict[color_bit];
                     }
                     return color;
                 })(),
@@ -185,14 +185,15 @@ window.onload = function () {
         [0,0,0,0,1000,0,0,0,0,0,0]
     ];
 
-    origin_CMAD_order.unshift(plantATP);
+    //origin_CMAD_order.unshift(plantATP);
+    CMAD_order.unshift(plantATP);
     var excelData_container = document.getElementById('inputData')
     var excelData_hot = new Handsontable(excelData_container, {
-        data:  origin_CMAD_order,
+        //data:  origin_CMAD_order,
+        data:  CMAD_order,
         licenseKey: 'ab3e4-1bee8-ed01c-4d94b-08cfe',
-        mergeCells:true,//合并单元格
+        mergeCells:false,//合并单元格
         contextMenu: false,//使用菜单
-        readOnly: true,
         rowHeaders: getHeader_row(),
         colHeaders: getBSHeader_col_by_CWlist(CW_list),
         rowHeaderWidth: 180,
@@ -241,7 +242,7 @@ window.onload = function () {
             if ( lastSelectedBtn != item ){
                 item.classList.add("gbtn-selectable");
                 if (lastSelectedBtn!=null){
-                    lastSelectedBtn.classList.remove("gbtn-selectable")
+                    lastSelectedBtn.classList.remove("gbtn-selectable");
                 }
                 targetScenario = getTargetScenario(item);
                 lastSelectedBtn = item;
@@ -256,8 +257,7 @@ window.onload = function () {
                 lastSelectedBtn = null;
                 selected_scenario_index_Input.value = "";
             }
-        }
-
+        };
     })
 
     //var selectableBtnHTMLCollection = document.getElementById("")
@@ -320,6 +320,16 @@ window.onload = function () {
 
     }
 
+}
+
+function page_submit(element){
+    var selectedBtn = [...document.getElementsByClassName('gbtn-selectable')];
+    alert(selectedBtn.length)
+    if (selectedBtn.length == 1){
+        __submit(element);
+    } else {
+        alert("Please select a scenario that you want to export firstly.")
+    }
 }
 
 

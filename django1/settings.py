@@ -149,7 +149,7 @@ CACHES={
 
 SESSION_CACHE_ALIAS = 'default'  # Cache to store session data if using the cache session backend.
 SESSION_COOKIE_NAME = 'sessionid'  # Cookie name. This can be whatever you want.
-SESSION_COOKIE_AGE = 60 * 5  # Age of cookie, in seconds (default: 2 weeks). Now is 5 minutes.
+SESSION_COOKIE_AGE = 60 * 15  # Age of cookie, in seconds (default: 2 weeks). Now is 5 minutes.
 SESSION_COOKIE_DOMAIN = None  # A string like ".example.com", or None for standard domain cookie.
 SESSION_COOKIE_SECURE = False  # Whether the session cookie should be secure (https:// only).
 SESSION_COOKIE_PATH = '/'  # The path of the session cookie.

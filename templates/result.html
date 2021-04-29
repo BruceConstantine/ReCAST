@@ -15,20 +15,30 @@
     /* It has no better choice: as the Django template parameters must be passed to the JS module file.
        '{ { datalist}}' must be located at template file.
 
-      var aaa = JSON.parse('{{ datalist|safe }}');
+      var aaa = JSON.parse('{ { datalist|safe }}');
       alert(aaa);
 * */
-    var CW_list   = {{ CW_list | safe }}
-    var CW_len   = CW_list.length
-    var CW_start = CW_list[0]
-    var CW_end =   CW_list[CW_len-1]
-    var plantATP =  eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
-    var ATP_NTA  =  ('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
-    var customerNameList  = {{ customerNameList |safe }}
+    var CW_list   = {{ CW_list | safe }};
+    var CW_len   = CW_list.length;
+    var CW_start = CW_list[0];
+    var CW_end =   CW_list[CW_len-1];
+    var plantATP =  eval('{{ plantATP }}'.replace(/&quot;/g,"'"));
+    var ATP_NTA  =  ('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"));
+    var customerNameList  = {{ customerNameList |safe }};
     //origin_CMAD_order, a list of list ,containing all customers' CMAD data list.
-    var origin_CMAD_order  = {{ origin_CMAD_order |safe }}
-    console.log(origin_CMAD_order)
-    console.log(typeof (origin_CMAD_order))
+    //var origin_CMAD_order  = {{ origin_CMAD_order |safe }};
+    var CMAD_order  = {{ CMAD_order |safe }};
+    /*(function(){
+        var length = origin_CMAD_order.length;
+        for (var i = 0 ; i < length; i++) {
+            console.log(origin_CMAD_order[i] )
+            console.log(CW_start,CW_end+1)
+            origin_CMAD_order[i] = origin_CMAD_order[i].slice(CW_start, CW_end+1);
+            console.log(origin_CMAD_order[i] )
+            console.log("+++++++++++++++++++++++++++")
+
+        }
+    })();*/
     var customerList_CMAD = [], customerList_CMAD_index = 0;
     var scenarioNumber = 0;
     /*

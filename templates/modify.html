@@ -10,8 +10,9 @@
 
 {% block pageContent %}
 <script>
-    var CW_start = {{ CW_start|safe }}
-    var CW_end   = {{ CW_end  |safe }}
+    var CW_list   = {{ CW_list | safe }};
+    var CW_start = CW_list[0];
+    var CW_end   = CW_list[CW_list.length-1];
     var plantATP = eval('{{ plantATP }}'.replace(/&quot;/g,"'"))
     var ATP_NTA  = eval('{{ ATP_NTA  }}'.replace(/&quot;/g,"'"))
     var customerObjList = eval('{{  customerList }}'.replace(/&quot;/g,"'"))
@@ -78,7 +79,8 @@
         <button class="greenBtn" type="button" ><a href="#">Confirm Modify</a></button>
 {#        <button class="greenBtn" type="button" ><a href="/update/">Confirm Modify</a></button>#}
         <!--If user do not enable robust factor, form action set as normal; but if user does, should used JS to changed form action to robust running mode -->
-        <input class="greenBtn" type="submit" value="Export" />
+{#        <input class="greenBtn" type="submit" value="Export" />#}
+        <input class="greenBtn" type="button" onclick="alert('Please Export at Result Page.')" value="Export" />
     </div>
     </form>
 {% endblock btnBar %}
